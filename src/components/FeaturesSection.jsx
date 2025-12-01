@@ -1,94 +1,99 @@
-import React, { useRef } from "react";
-import { Shield, AlertTriangle, Cpu } from "lucide-react";
-import { motion, useInView } from "framer-motion";
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
+// Neon Icons
+import { MapPinCheck, UserCheck, FileCheck2, Workflow } from "lucide-react";
 
 export default function FeaturesSection() {
-  const ref = useRef(null);
-
-  // Scroll detection
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true });
+  }, []);
 
   const features = [
     {
-      icon: <Shield size={40} />,
-      title: "Real-Time Monitoring",
-      desc: "AI-powered live monitoring of public channels.",
+      title: "Location Verification",
+      desc: "Ensure student is present at event location",
+      icon: <MapPinCheck size={32} color="#22eaff" />,
     },
     {
-      icon: <AlertTriangle size={40} />,
-      title: "Detect Suspicious Content",
-      desc: "Instant alerts for leaked or suspicious exam content.",
+      title: "Multi-Level Approval",
+      desc: "Coordinator + Director final verification",
+      icon: <Workflow size={32} color="#22eaff" />,
     },
     {
-      icon: <Cpu size={40} />,
-      title: "AI Similarity Checking",
-      desc: "Deep learning model to match question similarity.",
+      title: "Student Marks",
+      desc: "Attendance",
+      icon: <UserCheck size={32} color="#22eaff" />,
+    },
+    {
+      title: "Digital PDF Reports",
+      desc: "Signed attendance verify",
+      icon: <FileCheck2 size={32} color="#22eaff" />,
     },
   ];
 
-  // Each card animation
-  const cardVariants = {
-    hidden: { opacity: 0, y: 60 },
-    show: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.25, duration: 0.6, ease: "easeOut" },
-    }),
-  };
-
   return (
-    <section ref={ref} className="w-full bg-[#030712] py-20 px-4 md:px-10">
-      {/* Heading Animation */}
-      <motion.h2
-        initial={{ opacity: 0, y: 40 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7 }}
-        className="text-center text-white text-3xl md:text-4xl font-bold tracking-wide"
+    <div className="mt-28 text-center">
+
+      {/* NEON HEADING */}
+      <h2
+        data-aos="fade-up"
+        className="
+          text-3xl font-extrabold tracking-wider mb-14 
+          bg-gradient-to-r from-white via-[#22eaff] to-white
+          bg-clip-text text-transparent
+          drop-shadow-[0_0_25px_#22eaff]
+        "
       >
-        Our Key Features
-      </motion.h2>
+        SYSTEM FEATURES
+      </h2>
 
-      {/* Cards */}
-      <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
-        {features.map((item, index) => (
+      {/* GRID */}
+      <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto px-6">
+        {features.map((item, i) => (
           <motion.div
-            key={index}
-            custom={index}
-            initial="hidden"
-            animate={isInView ? "show" : "hidden"}
-            variants={cardVariants}
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 0 25px rgba(0, 255, 255, 0.45)", // hover glow
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+            key={i}
+            initial={{ opacity: 0, rotateX: -15, scale: 0.95 }}
+whileInView={{ opacity: 1, rotateX: 0, scale: 1 }}
+transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.1 }}
+whileHover={{ scale: 1.05, rotateX: 0 }}
+
             className="
-              bg-[#0A0F1E] 
-              border border-[#0d1b2a] 
-              rounded-2xl 
-              p-8 
-              cursor-pointer
-              flex flex-col items-center text-center
-              transition-all duration-300
-
-              shadow-[0_0_15px_rgba(0,255,255,0.15)]   // ⭐ pre-glow always ON
-              hover:border-cyan-400
-              hover:shadow-[0_0_25px_rgba(0,255,255,0.45)] // ⭐ bright glow on hover
+              border border-[#22eaff55] 
+              hover:border-[#22eaff] 
+              rounded-xl 
+              p-6 
+              flex items-center gap-4 
+              bg-[#0B0F1A]
+              transition-all duration-300 
+              hover:shadow-[0_0_25px_#22eaffaa]
             "
+            data-aos="fade-up"
           >
-            <div className="text-cyan-400 mb-4">{item.icon}</div>
+            {/* ICON */}
+            <div className="p-4 rounded-xl bg-[#0f172a] shadow-[0_0_15px_#22eaff44] hover:shadow-[0_0_25px_#22eaffaa] transition-all duration-300">
+              {item.icon}
+            </div>
 
-            <h3 className="text-white text-xl font-semibold mb-2">
-              {item.title}
-            </h3>
-
-            <p className="text-gray-400 text-sm">{item.desc}</p>
+            {/* TEXT */}
+            <div className="text-left">
+              <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+              <p className="text-gray-400 text-sm mt-1">{item.desc}</p>
+            </div>
           </motion.div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
+
+
+
+
+
+
 
 
 
