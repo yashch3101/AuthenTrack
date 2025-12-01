@@ -1,0 +1,2 @@
+django-5.x.x djangorestframework-3.x.x
+pymongo cloudinary opencv-python face-recognition pillow
