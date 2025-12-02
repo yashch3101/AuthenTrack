@@ -5,7 +5,6 @@ export default function GlobalBlob() {
   return (
     <div className="fixed inset-0 z-[0] pointer-events-none overflow-hidden">
 
-      {/* ✨ BLUE / CYAN STARS */}
       {[...Array(90)].map((_, i) => {
         let size = Math.random() * 3 + 1;
         return (
@@ -25,7 +24,7 @@ export default function GlobalBlob() {
             style={{
               width: size,
               height: size,
-              backgroundColor: "rgba(0,160,255,0.9)", // blue star
+              backgroundColor: "rgba(0,160,255,0.9)",
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
               filter: "blur(0.7px)",
@@ -34,9 +33,8 @@ export default function GlobalBlob() {
         );
       })}
 
-      {/* 🌸 PINK BLINKING BLOBS */}
       {[...Array(60)].map((_, i) => {
-        let size = Math.random() * 4 + 2; // pink blobs slightly bigger
+        let size = Math.random() * 4 + 2;
         return (
           <motion.div
             key={"pink_" + i}
@@ -54,7 +52,7 @@ export default function GlobalBlob() {
             style={{
               width: size,
               height: size,
-              backgroundColor: "rgba(255, 0, 150, 0.8)", // pink blob
+              backgroundColor: "rgba(255, 0, 150, 0.8)",
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
               filter: "blur(1px)",
@@ -65,15 +63,3 @@ export default function GlobalBlob() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-

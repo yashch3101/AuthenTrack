@@ -4,7 +4,6 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useNavigate } from "react-router-dom";
 
-// ⭐ LOCAL IMAGE
 import neonEarth from "../assets/edu.png";
 
 export default function Hero() {
@@ -55,7 +54,7 @@ export default function Hero() {
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.95 }}
             className="px-6 py-3 rounded-lg font-semibold bg-[#14F1F9] text-black hover:opacity-90 transition"
-            onClick={() => navigate("/register")}   // ⭐ ADDED
+            onClick={() => navigate("/register")}
           >
             Get Started
           </motion.button>
@@ -88,6 +87,3 @@ export default function Hero() {
     </motion.div>
   );
 }
-
-
-

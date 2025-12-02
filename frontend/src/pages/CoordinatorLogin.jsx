@@ -10,9 +10,9 @@ export default function CoordinatorLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  // Redirect to new coordinator dashboard
   const handleLogin = () => {
-    // ⭐ abhi ke liye demo → direct panel par jaayega
-    navigate("/dashboard/university/coordinator/panel");
+    navigate("/dashboard/university/coordinator/dashboard");
   };
 
   return (
@@ -28,7 +28,7 @@ export default function CoordinatorLogin() {
         transition-all duration-300 p-2 bg-[#0a0f1f]/60 backdrop-blur-md"
       />
 
-      {/* ⭐ Background Stars + Glow */}
+      {/* Background Glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(110)].map((_, i) => (
           <motion.div
@@ -57,7 +57,7 @@ export default function CoordinatorLogin() {
         </div>
       </div>
 
-      {/* ⭐ Login Card */}
+      {/* Login Card */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -118,7 +118,7 @@ export default function CoordinatorLogin() {
             </span>
           </div>
 
-          {/* ⭐ Login Button → Now with Navigation */}
+          {/* Login Button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             onClick={handleLogin}
@@ -131,7 +131,7 @@ export default function CoordinatorLogin() {
           </motion.button>
         </div>
 
-        {/* ⭐ Signup Redirect */}
+        {/* Signup Redirect */}
         <div className="text-center mt-8 text-gray-400 text-sm">
           New Coordinator?{" "}
           <Link
@@ -145,8 +145,4 @@ export default function CoordinatorLogin() {
     </div>
   );
 }
-
-
-
-
 

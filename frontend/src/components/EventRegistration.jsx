@@ -5,7 +5,6 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useNavigate } from "react-router-dom";
 
-// ⭐ BACK BUTTON IMPORT (same as Login)
 import backBtn from "../assets/back-button.png";
 
 function LocalBlob() {
@@ -80,7 +79,6 @@ export default function EventRegistration() {
     >
       <LocalBlob />
 
-      {/* ⭐ Neon Cyan Back Button — SAME AS LOGIN PAGE */}
       <motion.img
         src={backBtn}
         onClick={() => navigate(-1)}
@@ -231,14 +229,3 @@ export default function EventRegistration() {
     </motion.div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-

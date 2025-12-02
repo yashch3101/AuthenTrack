@@ -9,8 +9,8 @@ export default function Navbar() {
         
         {/* Logo */}
         <Link to="/">
-          <h1 className="text-xl font-semibold text-cyan-400 tracking-wide cursor-pointer">
-            ExamLeak AI
+          <h1 className="text-3xl font-semibold text-cyan-400 tracking-wide cursor-pointer">
+            AuthenTrack
           </h1>
         </Link>
 

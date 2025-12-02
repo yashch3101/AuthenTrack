@@ -16,7 +16,6 @@ export default function HowItWorks() {
   return (
     <section className="relative w-full bg-[#030712] py-24 px-4 md:px-10">
 
-      {/* ⭐ Background Glow Aura */}
       <div className="absolute inset-0 mx-auto max-w-6xl blur-[90px] opacity-30 bg-cyan-500/20 rounded-3xl"></div>
 
       <motion.div
@@ -27,10 +26,8 @@ export default function HowItWorks() {
         className="relative max-w-6xl mx-auto"
       >
 
-        {/* ⭐ HEADING + BIGGER GLOW LINES */}
         <div className="flex items-center justify-center gap-6 mb-16">
 
-          {/* Left Big Neon Line */}
           <motion.div
             className="h-[2px] w-40 md:w-64 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
             animate={{
@@ -48,7 +45,6 @@ export default function HowItWorks() {
             How it <span className="text-cyan-400">works</span>
           </h2>
 
-          {/* Right Big Neon Line */}
           <motion.div
             className="h-[2px] w-40 md:w-64 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
             animate={{
@@ -64,7 +60,7 @@ export default function HowItWorks() {
 
         </div>
 
-        {/* ⭐ STEPS GRID */}
+        {/* STEPS GRID */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {steps.map((step, index) => (
             <motion.div

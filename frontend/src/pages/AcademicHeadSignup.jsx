@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import openEye from "../assets/open-eye.png";
 import closeEye from "../assets/close-eye.png";
@@ -9,6 +9,13 @@ import backBtn from "../assets/back-button.png";
 export default function AcademicHeadSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const navigate = useNavigate(); // ⭐ Added navigation
+
+  const handleSignup = () => {
+    // Later add validation here
+    navigate("/dashboard/university/academic-head/dashboard"); // ⭐ Signup success → Dashboard
+  };
 
   return (
     <div className="min-h-screen bg-[#020617] relative overflow-hidden flex items-center justify-center px-4">
@@ -76,16 +83,7 @@ export default function AcademicHeadSignup() {
         }}
       />
 
-      {/* TOP SHINE */}
-      <div
-        className="absolute top-[90px] left-1/2 -translate-x-1/2 w-[260px] h-[40px] rounded-full"
-        style={{
-          background: "linear-gradient(to bottom,rgba(0,217,255,0.5),transparent)",
-          filter: "blur(15px)",
-        }}
-      />
-
-      {/* OUTER BORDER BOX (SMALLER LIKE SS) */}
+      {/* OUTER BORDER BOX */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -99,7 +97,7 @@ export default function AcademicHeadSignup() {
         }}
       >
 
-        {/* INNER PANEL (reduced height 100% match) */}
+        {/* INNER PANEL */}
         <div
           className="bg-[#071025]/90 rounded-2xl px-7 py-8 backdrop-blur-xl"
           style={{
@@ -118,7 +116,7 @@ export default function AcademicHeadSignup() {
             Secure high-level access for academic approvals
           </p>
 
-          {/* ---------------- FORM ---------------- */}
+          {/* FORM FIELDS */}
           <div className="space-y-4">
 
             {/* Full Name */}
@@ -138,7 +136,7 @@ export default function AcademicHeadSignup() {
               icon={showPassword ? openEye : closeEye}
             />
 
-            {/* CONFIRM */}
+            {/* CONFIRM PASSWORD */}
             <PasswordFieldIcon
               placeholder="Confirm Password"
               show={showConfirm}
@@ -146,26 +144,26 @@ export default function AcademicHeadSignup() {
               icon={showConfirm ? openEye : closeEye}
             />
 
-           {/* SECRET ACCESS CODE + SIDE TOOLTIP */}
-<div className="relative">
-  <FieldIcon placeholder="Secret Access Code" icon="🛡️" />
+            {/* SECRET CODE WITH TOOLTIP */}
+            <div className="relative">
+              <FieldIcon placeholder="Secret Access Code" icon="🛡️" />
 
-  <div
-    className="
-      absolute right-0 top-1 text-[10px] px-2 py-[3px] 
-      rounded-md bg-[#182135] text-gray-300
-      border border-cyan-500/30
-      shadow-[0_0_12px_rgba(0,255,255,0.3)]
-    "
-  >
-    Only academic heads<br />have access
-  </div>
-</div>
+              <div
+                className="
+                  absolute right-0 top-1 text-[10px] px-2 py-[3px] 
+                  rounded-md bg-[#182135] text-gray-300
+                  border border-cyan-500/30
+                  shadow-[0_0_12px_rgba(0,255,255,0.3)]
+                "
+              >
+                Only academic heads<br />have access
+              </div>
+            </div>
 
-
-            {/* BUTTON */}
+            {/* SIGNUP BUTTON */}
             <motion.button
               whileHover={{ scale: 1.05 }}
+              onClick={handleSignup}   // ⭐ Added navigation
               className="
                 w-full py-3 mt-2 rounded-xl font-semibold text-white
                 bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400
@@ -189,17 +187,13 @@ export default function AcademicHeadSignup() {
             </Link>
           </p>
 
-          <p className="text-center text-gray-500 text-xs mt-1">
-            Only authorized academic heads may register
-          </p>
-
         </div>
       </motion.div>
     </div>
   );
 }
 
-/* INPUT FIELD WITH ICON (LEFT SIDE EXACT SS STYLE) */
+/* ICON FIELD ELEMENT */
 function FieldIcon({ placeholder, icon }) {
   return (
     <div className="relative">
@@ -219,7 +213,7 @@ function FieldIcon({ placeholder, icon }) {
   );
 }
 
-/* PASSWORD FIELD WITH TOGGLE + ICON */
+/* PASSWORD FIELD ELEMENT */
 function PasswordFieldIcon({ placeholder, show, onToggle, icon }) {
   return (
     <div className="relative">
@@ -243,6 +237,7 @@ function PasswordFieldIcon({ placeholder, show, onToggle, icon }) {
     </div>
   );
 }
+
 
 
 

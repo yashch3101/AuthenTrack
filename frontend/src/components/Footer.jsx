@@ -4,7 +4,6 @@ export default function Footer() {
   return (
     <div className="relative w-full bg-[#020617] text-white overflow-hidden mt-32">
 
-      {/* ======= ANIMATED NEON WAVES BACKGROUND ======= */}
       <div className="absolute inset-0 opacity-60">
         <svg
           className="w-full h-full"
@@ -33,21 +32,18 @@ export default function Footer() {
             />
           </path>
 
-          {/* Neon Gradient */}
           <defs>
             <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#06b6d4" />   {/* cyan */}
-              <stop offset="50%" stopColor="#3b82f6" />  {/* blue */}
-              <stop offset="100%" stopColor="#ec4899" /> {/* pink */}
+              <stop offset="0%" stopColor="#06b6d4" />
+              <stop offset="50%" stopColor="#3b82f6" />
+              <stop offset="100%" stopColor="#ec4899" />
             </linearGradient>
           </defs>
         </svg>
       </div>
 
-      {/* ======= NEON PULSE TOP BORDER ======= */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-pink-500 animate-pulse shadow-[0_0_25px_#06b6d4]"></div>
 
-      {/* ======= FOOTER CONTENT ======= */}
       <div className="relative z-10 text-center py-16">
         <h2 className="text-3xl font-bold mb-3">
           Made With ❤️ By <span className="text-pink-400">Our Team Hack Elite</span>

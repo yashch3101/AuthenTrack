@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// Neon Icons
 import { MapPinCheck, UserCheck, FileCheck2, Workflow } from "lucide-react";
 
 export default function FeaturesSection() {
@@ -88,12 +87,3 @@ whileHover={{ scale: 1.05, rotateX: 0 }}
     </div>
   );
 }
-
-
-
-
-
-
-
-
-

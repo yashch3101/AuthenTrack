@@ -18,8 +18,8 @@ export default function AboutTeam() {
       img: anshiPic,
     },
     {
-      name: "Dr. Shreya Bajpai",
-      role: "Backend developer engineer with NCC Member",
+      name: "Er. Shreya Bajpai",
+      role: "Backend developer engineer ",
       img: shreyaPic,
     },
     {
@@ -32,10 +32,10 @@ export default function AboutTeam() {
   return (
     <div className="relative text-white py-24 px-6">
 
-      {/* LEFT CYAN STRIP */}
+      
       <div className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 w-6 h-64 bg-cyan-500 rounded-r-xl opacity-80"></div>
 
-      {/* RIGHT PINK STRIP */}
+      
       <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-6 h-64 bg-pink-500 rounded-l-xl opacity-80"></div>
 
       <h2 className="text-center text-4xl font-extrabold mb-16 tracking-wide">
@@ -47,7 +47,7 @@ export default function AboutTeam() {
         {team.map((member, idx) => (
           <div key={idx} className="text-center">
 
-            {/* IMAGE WITHOUT GLOW */}
+            
             <div className="flex justify-center">
               <img
                 src={member.img}

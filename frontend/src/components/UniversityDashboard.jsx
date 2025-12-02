@@ -11,14 +11,14 @@ export default function UniversityDashboard() {
       title: "Academic Head",
       desc: "Manage academics, faculties & scheduling.",
       icon: <Users size={45} className="text-cyan-300" />,
-      path: "/dashboard/university/academic-head/login", // ⭐ Correct academic head login
+      path: "/dashboard/university/academic-head/login",
       glow: "from-pink-500 to-purple-500",
     },
     {
       title: "Event Coordinator",
       desc: "Oversee events & handle event approvals.",
       icon: <CalendarCheck size={45} className="text-teal-300" />,
-      path: "/dashboard/university/coordinator/login", // ⭐ Correct coordinator login
+      path: "/dashboard/university/coordinator/login",
       glow: "from-cyan-400 to-blue-500",
     },
   ];
@@ -77,8 +77,3 @@ export default function UniversityDashboard() {
     </div>
   );
 }
-
-
-
-
-

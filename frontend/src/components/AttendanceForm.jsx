@@ -1,4 +1,3 @@
-// AttendanceForm.jsx
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AOS from "aos";
@@ -6,7 +5,7 @@ import "aos/dist/aos.css";
 import { Image as ImageIcon, CheckCircle, Clock } from "lucide-react";
 import backBtn from "../assets/back-button.png";
 
-// ⭐ Reusable breathing glow line
+
 const GlowLine = ({ className }) => (
   <motion.div
     className={className}
@@ -22,11 +21,11 @@ const GlowLine = ({ className }) => (
   />
 );
 
-// ⭐ ADDING GLOBAL BLOB HERE (YOUR UI WILL NOT CHANGE)
+
 const GlobalBlob = () => (
   <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
 
-    {/* ✨ BLUE / CYAN STARS */}
+   
     {[...Array(90)].map((_, i) => {
       let size = Math.random() * 3 + 1;
       return (
@@ -52,7 +51,7 @@ const GlobalBlob = () => (
       );
     })}
 
-    {/* 🌸 PINK PARTICLES */}
+    
     {[...Array(60)].map((_, i) => {
       let size = Math.random() * 4 + 2;
       return (
@@ -83,7 +82,7 @@ const GlobalBlob = () => (
 export default function AttendanceForm() {
   const [gps, setGps] = useState("30.0083°, 77.7649°");
 
-  // ⭐ INIT AOS
+  
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
   }, []);
@@ -114,10 +113,10 @@ export default function AttendanceForm() {
   return (
     <div className="min-h-screen bg-[#050D17] text-white flex justify-center px-4 py-10 relative overflow-hidden">
       
-      {/* ⭐ GLOBAL PARTICLE BLOB ADDED */}
+      
       <GlobalBlob />
 
-      {/* ⭐ ROTATING CYAN MAIN BLOB */}
+     
       <motion.div
         initial={{ rotate: 0 }}
         animate={{ rotate: 360 }}
@@ -128,7 +127,7 @@ export default function AttendanceForm() {
         }}
       />
 
-      {/* ⭐ SMALL PINK SIDE BLOB */}
+      
       <motion.div
         initial={{ rotate: 0 }}
         animate={{ rotate: -360 }}
@@ -139,7 +138,7 @@ export default function AttendanceForm() {
         }}
       />
 
-      {/* ⭐ RIGHT SIDE PURPLE GLOW BLOB */}
+      
       <motion.div
         initial={{ rotate: 0 }}
         animate={{ rotate: 360 }}
@@ -150,7 +149,7 @@ export default function AttendanceForm() {
         }}
       />
 
-      {/* ⭐ Back Button */}
+     
       <motion.img
         src={backBtn}
         onClick={() => window.history.back()}
@@ -159,7 +158,7 @@ export default function AttendanceForm() {
         bg-[#06131c]/85 p-2 shadow-[0_0_30px_rgba(0,255,255,0.8)]"
       />
 
-      {/* ⭐ UI START (UNCHANGED) */}
+      
       <div className="w-full max-w-[900px] relative z-[5]">
 
         <motion.h1
@@ -178,7 +177,7 @@ export default function AttendanceForm() {
           Authenticate your face and submit your attendance
         </motion.p>
 
-        {/* ⭐ FACE BOX (UNCHANGED) */}
+        
         <motion.div
           data-aos="fade-up"
           className="relative bg-[#081523] rounded-2xl px-8 py-8 border border-cyan-500/80 backdrop-blur-sm"
@@ -192,7 +191,7 @@ export default function AttendanceForm() {
 
           <div className="grid grid-cols-3 gap-8">
 
-            {/* ⭐ Face Circle */}
+            
             <div className="flex flex-col items-center">
               <div
                 className="w-36 h-36 rounded-full flex flex-col items-center justify-center"
@@ -220,7 +219,7 @@ export default function AttendanceForm() {
               </motion.button>
             </div>
 
-            {/* ⭐ Event Details */}
+            
             <div className="text-sm space-y-3 pt-3">
               <p><b className="text-cyan-300">Event Name:</b> AI Robotics Workshop</p>
               <p><b className="text-cyan-300">Event Date & Time:</b> 2024-10-26, 3 PM</p>
@@ -228,7 +227,7 @@ export default function AttendanceForm() {
               <p><b className="text-cyan-300">Coordinator:</b> Dr. Anya Sharma</p>
             </div>
 
-            {/* ⭐ Right Boxes */}
+            
             <div className="flex flex-col items-center gap-5">
 
               <motion.div
@@ -256,7 +255,7 @@ export default function AttendanceForm() {
           </div>
         </motion.div>
 
-        {/* ⭐ STUDENT DETAILS (UNCHANGED) */}
+        
         <motion.div
           data-aos="fade-up"
           className="relative bg-[#081523] border border-cyan-400/30 rounded-2xl px-8 py-8 mt-8 backdrop-blur-sm"
@@ -271,7 +270,7 @@ export default function AttendanceForm() {
 
           <div className="grid grid-cols-2 gap-8">
 
-            {/* LEFT */}
+            
             <div className="text-sm space-y-4">
 
               <div>
@@ -331,16 +330,3 @@ export default function AttendanceForm() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

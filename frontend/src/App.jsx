@@ -25,12 +25,15 @@ import { Routes, Route, useLocation } from "react-router-dom";
 // ⭐ Academic Head Pages
 import AcademicHeadLogin from "./pages/AcademicHeadLogin";
 import AcademicHeadSignup from "./pages/AcademicHeadSignup";
+import AcademicHeadDashboard from "./headAcademic/components/AcademicHeadDashboard";  // ⭐ IMPORTANT
 
 // ⭐ Coordinator Pages
 import CoordinatorLogin from "./pages/CoordinatorLogin";
 import CoordinatorSignup from "./pages/CoordinatorSignup";
 
-// ⭐ NEW — Event Attendance Panel (Coordinator Dashboard Screen)
+import CoordinatorDashboard from "./coordinator/CoordinatorDashboard";
+
+// ⭐ Event Attendance Panel
 import EventAttendancePanel from "./pages/EventAttendancePanel";
 
 function App() {
@@ -48,28 +51,29 @@ function App() {
     "/register",
     "/attendance",
 
+    // Academic Head
     "/dashboard/university/academic-head/login",
     "/dashboard/university/academic-head/signup",
+    "/dashboard/university/academic-head/dashboard",  // ⭐ ADDED
 
+    // Coordinator
     "/dashboard/university/coordinator/login",
     "/dashboard/university/coordinator/signup",
-
-    // ⭐ PANEL ALSO WITHOUT NAVBAR
     "/dashboard/university/coordinator/panel",
   ].includes(location.pathname);
 
   return (
     <div className="min-h-screen text-white relative bg-[#020617]">
-      
-      {/* GLOBAL BLOB BACKGROUND */}
+
+      {/* BACKGROUND */}
       <GlobalBlob />
 
-      {/* SHOW NAVBAR ONLY WHEN ALLOWED */}
+      {/* NAVBAR */}
       {!hideNavbar && <Navbar />}
 
       <Routes>
 
-        {/* ⭐ HOME PAGE */}
+        {/* HOME PAGE */}
         <Route
           path="/"
           element={
@@ -87,13 +91,13 @@ function App() {
           }
         />
 
-        {/* ⭐ MAIN ROUTES */}
+        {/* MAIN ROUTES */}
         <Route path="/register" element={<EventRegistration />} />
         <Route path="/attendance" element={<AttendanceForm />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/university" element={<UniversityDashboard />} />
 
-        {/* ⭐ ACADEMIC HEAD ROUTES */}
+        {/* ⭐ Academic Head */}
         <Route
           path="/dashboard/university/academic-head/login"
           element={<AcademicHeadLogin />}
@@ -102,8 +106,12 @@ function App() {
           path="/dashboard/university/academic-head/signup"
           element={<AcademicHeadSignup />}
         />
+        <Route
+          path="/dashboard/university/academic-head/dashboard"
+          element={<AcademicHeadDashboard />}  // ⭐ VERY IMPORTANT
+        />
 
-        {/* ⭐ COORDINATOR ROUTES */}
+        {/* ⭐ Coordinator */}
         <Route
           path="/dashboard/university/coordinator/login"
           element={<CoordinatorLogin />}
@@ -112,14 +120,18 @@ function App() {
           path="/dashboard/university/coordinator/signup"
           element={<CoordinatorSignup />}
         />
+        <Route
+          path="/dashboard/university/coordinator/dashboard"
+          element={<CoordinatorDashboard />}
+        />
 
-        {/* ⭐ NEW -> COORDINATOR DASHBOARD PANEL ROUTE */}
+        {/* ⭐ Coordinator Panel */}
         <Route
           path="/dashboard/university/coordinator/panel"
           element={<EventAttendancePanel />}
         />
 
-        {/* ⭐ GLOBAL AUTH ROUTES */}
+        {/* Global Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -130,32 +142,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
