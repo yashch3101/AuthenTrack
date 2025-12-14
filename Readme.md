@@ -177,7 +177,7 @@ This project was collaboratively developed by:
 - **Yash** – MERN Stack Developer | App Developer | AI/ML Enthusiast
 - **Anshi** – Machine Learning | Python | Deep Learning (TensorFlow/PyTorch) | Computer Vision
 - **Supriya** – Expertise in frontend development | Enthusiastic AI/ML 
-- **Shreya** – Python | Django | 
+- **Shreya** – Python | Django
 
 
 ### ⭐ Final Note
