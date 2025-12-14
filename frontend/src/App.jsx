@@ -25,7 +25,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 // ⭐ Academic Head Pages
 import AcademicHeadLogin from "./pages/AcademicHeadLogin";
 import AcademicHeadSignup from "./pages/AcademicHeadSignup";
-import AcademicHeadDashboard from "./headAcademic/components/AcademicHeadDashboard";  // ⭐ IMPORTANT
+import AcademicHeadDashboard from "./headAcademic/components/AcademicHeadDashboard";
 
 // ⭐ Coordinator Pages
 import CoordinatorLogin from "./pages/CoordinatorLogin";
@@ -34,7 +34,7 @@ import CoordinatorSignup from "./pages/CoordinatorSignup";
 import CoordinatorDashboard from "./coordinator/CoordinatorDashboard";
 
 // ⭐ Event Attendance Panel
-import EventAttendancePanel from "./pages/EventAttendancePanel";
+import EventAttendancePanel from "./coordinator/components/EventAttendancePanel";
 
 function App() {
   const location = useLocation();

@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { Image as ImageIcon, CheckCircle, Clock } from "lucide-react";
+import { Image as ImageIcon, CheckCircle } from "lucide-react";
 import backBtn from "../assets/back-button.png";
-
 
 const GlowLine = ({ className }) => (
   <motion.div
@@ -21,11 +20,8 @@ const GlowLine = ({ className }) => (
   />
 );
 
-
 const GlobalBlob = () => (
   <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-
-   
     {[...Array(90)].map((_, i) => {
       let size = Math.random() * 3 + 1;
       return (
@@ -51,7 +47,6 @@ const GlobalBlob = () => (
       );
     })}
 
-    
     {[...Array(60)].map((_, i) => {
       let size = Math.random() * 4 + 2;
       return (
@@ -80,18 +75,141 @@ const GlobalBlob = () => (
 );
 
 export default function AttendanceForm() {
-  const [gps, setGps] = useState("30.0083°, 77.7649°");
+  const [gps, setGps] = useState("-");
+  const [liveImage, setLiveImage] = useState(null);
+  const [registeredImage, setRegisteredImage] = useState(null);
 
-  
+  const [faceStatus, setFaceStatus] = useState("pending");
+  const [matchScore, setMatchScore] = useState(null);
+  const [faceDistance, setFaceDistance] = useState(null);
+  const [locationStatus, setLocationStatus] = useState("pending");
+
+  const [studentLat, setStudentLat] = useState(null);
+  const [studentLng, setStudentLng] = useState(null);
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [course, setCourse] = useState("");
+  const [branch, setBranch] = useState("");
+  const [year, setYear] = useState("");
+  const [qid, setQid] = useState("");
+
+  const [eventData, setEventData] = useState(null);
+
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
   }, []);
 
+  // ⭐ FETCH LATEST EVENT
   useEffect(() => {
-    navigator.geolocation?.getCurrentPosition((p) => {
+    const token = localStorage.getItem("studentToken");
+
+    fetch("http://localhost:5000/api/student/event/latest", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setEventData(data.event))
+      .catch(() => alert("No active event found"));
+  }, []);
+
+  // ⭐ FETCH REGISTRATION DETAILS
+  useEffect(() => {
+    if (!eventData?._id) return;
+
+    fetch(
+      `http://localhost:5000/api/student/attendance/registration-details?eventId=${eventData._id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("studentToken")}`
+        }
+      }
+    )
+      .then(res => res.json())
+      .then(data => {
+        setRegisteredImage(data.photoUrl);
+        setFullName(data.fullName);
+        setEmail(data.email);
+        setCourse(data.course);
+        setBranch(data.branch);
+        setYear(data.year);
+        setQid(data.qid);
+      });
+  }, [eventData]);
+
+  // ⭐ GPS AUTO
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((p) => {
       setGps(`${p.coords.latitude.toFixed(4)}°, ${p.coords.longitude.toFixed(4)}°`);
     });
   }, []);
+
+  // ⭐ CAPTURE FACE
+  const captureFace = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const video = document.createElement("video");
+    video.srcObject = stream;
+    await video.play();
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 350;
+    canvas.height = 350;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, 350, 350);
+
+    const imageData = canvas.toDataURL("image/jpeg");
+    setLiveImage(imageData);
+
+    stream.getTracks().forEach(track => track.stop());
+  };
+
+  // ⭐ FETCH LIVE LOCATION
+  const getMyLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setStudentLat(pos.coords.latitude);
+        setStudentLng(pos.coords.longitude);
+        setGps(`${pos.coords.latitude.toFixed(4)}°, ${pos.coords.longitude.toFixed(4)}°`);
+      },
+      () => alert("Please enable location permissions.")
+    );
+  };
+
+  // ⭐ SUBMIT ATTENDANCE
+  const submitAttendance = async () => {
+    try {
+      if (!eventData?._id) return alert("Event not loaded");
+      if (!liveImage) return alert("Capture your face first!");
+      if (!studentLat || !studentLng) return alert("Please fetch your live location!");
+
+      const resImg = await fetch(liveImage);
+      const blob = await resImg.blob();
+      const file = new File([blob], "live.jpg", { type: "image/jpeg" });
+
+      const formData = new FormData();
+      formData.append("livePhoto", file);
+      formData.append("eventId", eventData._id);
+      formData.append("studentLat", studentLat);
+      formData.append("studentLng", studentLng);
+
+      const res = await fetch("http://localhost:5000/api/student/attendance/submit", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("studentToken")}` },
+        body: formData
+      });
+
+      const data = await res.json();
+
+      setFaceStatus(data.attendance.faceMatched ? "verified" : "failed");
+      setMatchScore(data.attendance.matchScore);
+      setFaceDistance(data.attendance.distance);
+
+      setLocationStatus(data.attendance.locationMatched ? "verified" : "failed");
+
+      setRegisteredImage(data.attendance.registeredPhotoUrl);
+    } catch (err) {
+      console.log("Submit Attendance Error:", err);
+    }
+  };
 
   const inputBase = {
     width: "100%",
@@ -112,44 +230,9 @@ export default function AttendanceForm() {
 
   return (
     <div className="min-h-screen bg-[#050D17] text-white flex justify-center px-4 py-10 relative overflow-hidden">
-      
-      
+
       <GlobalBlob />
 
-     
-      <motion.div
-        initial={{ rotate: 0 }}
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 32, ease: "linear" }}
-        className="absolute -top-56 left-1/2 -translate-x-1/2 w-[850px] h-[850px] rounded-full opacity-25 blur-[140px]"
-        style={{
-          background: "radial-gradient(circle, #00eaff, #0066ff, transparent)"
-        }}
-      />
-
-      
-      <motion.div
-        initial={{ rotate: 0 }}
-        animate={{ rotate: -360 }}
-        transition={{ repeat: Infinity, duration: 45, ease: "linear" }}
-        className="absolute top-20 left-8 w-[380px] h-[380px] rounded-full opacity-20 blur-[120px]"
-        style={{
-          background: "radial-gradient(circle, #ff1fbf, #a8008f, transparent)"
-        }}
-      />
-
-      
-      <motion.div
-        initial={{ rotate: 0 }}
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 55, ease: "linear" }}
-        className="absolute bottom-10 right-10 w-[420px] h-[420px] rounded-full opacity-20 blur-[130px]"
-        style={{
-          background: "radial-gradient(circle, #b400ff, #5500ff, transparent)"
-        }}
-      />
-
-     
       <motion.img
         src={backBtn}
         onClick={() => window.history.back()}
@@ -158,32 +241,18 @@ export default function AttendanceForm() {
         bg-[#06131c]/85 p-2 shadow-[0_0_30px_rgba(0,255,255,0.8)]"
       />
 
-      
       <div className="w-full max-w-[900px] relative z-[5]">
 
-        <motion.h1
-          className="text-center text-4xl font-bold text-cyan-500 mt-4"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.h1 className="text-center text-4xl font-bold text-cyan-500 mt-4">
           Event Attendance Verification
         </motion.h1>
 
-        <motion.p
-          className="text-center text-gray-400 text-sm mb-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
+        <motion.p className="text-center text-gray-400 text-sm mb-10">
           Authenticate your face and submit your attendance
         </motion.p>
 
-        
-        <motion.div
-          data-aos="fade-up"
-          className="relative bg-[#081523] rounded-2xl px-8 py-8 border border-cyan-500/80 backdrop-blur-sm"
-        >
-          <GlowLine className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-[2px] bg-cyan-500/80" />
-          <GlowLine className="absolute bottom-0 left-1/2 -translate-x-1/2 w-36 h-[2px] bg-cyan-300/80" />
+        {/* FACE BOX */}
+        <motion.div className="relative bg-[#081523] rounded-2xl px-8 py-8 border border-cyan-500/80 backdrop-blur-sm">
 
           <h2 className="text-center text-cyan-500 font-semibold mb-6 text-lg">
             Face Recognition Box
@@ -191,26 +260,18 @@ export default function AttendanceForm() {
 
           <div className="grid grid-cols-3 gap-8">
 
-            
+            {/* LEFT */}
             <div className="flex flex-col items-center">
-              <div
-                className="w-36 h-36 rounded-full flex flex-col items-center justify-center"
-                style={{
-                  background: "#0d2433",
-                  border: "2px solid rgba(0,200,255,0.6)",
-                  boxShadow:
-                    "0 0 40px rgba(0,200,255,0.35), inset 0 0 25px rgba(0,200,255,0.25)"
-                }}
-              >
-                <p className="text-cyan-200 text-xs leading-[1.6] mb-1">
-                  Align your face
-                </p>
-                <p className="text-cyan-200 text-xs leading-[1.6] mt-1">
-                  and click Capture
-                </p>
+              <div className="w-36 h-36 rounded-full flex items-center justify-center bg-[#0d2433] border border-cyan-400">
+                {liveImage ? (
+                  <img src={liveImage} className="w-36 h-36 rounded-full object-cover" />
+                ) : (
+                  <p className="text-cyan-200 text-xs">Align your face</p>
+                )}
               </div>
 
               <motion.button
+                onClick={captureFace}
                 whileHover={{ scale: 1.07 }}
                 className="mt-5 px-7 py-2.5 rounded-full font-semibold text-white text-sm"
                 style={buttonGradient}
@@ -219,50 +280,68 @@ export default function AttendanceForm() {
               </motion.button>
             </div>
 
-            
+            {/* EVENT INFO */}
             <div className="text-sm space-y-3 pt-3">
-              <p><b className="text-cyan-300">Event Name:</b> AI Robotics Workshop</p>
-              <p><b className="text-cyan-300">Event Date & Time:</b> 2024-10-26, 3 PM</p>
-              <p><b className="text-cyan-300">Venue:</b> Auditorium B</p>
-              <p><b className="text-cyan-300">Coordinator:</b> Dr. Anya Sharma</p>
+              <p><b className="text-cyan-300">Event Name:</b> {eventData?.eventName}</p>
+              <p><b className="text-cyan-300">Event Date & Time:</b> {eventData?.eventDate}</p>
+              <p><b className="text-cyan-300">Venue:</b> {eventData?.eventVenue}</p>
+              <p><b className="text-cyan-300">Coordinator:</b> {eventData?.createdBy?.fullName}</p>
             </div>
 
-            
+            {/* RIGHT IMAGES */}
             <div className="flex flex-col items-center gap-5">
 
-              <motion.div
-                whileHover={{ scale: 1.07 }}
-                className="w-24 h-24 rounded-xl bg-[#0c2333]
-                flex flex-col items-center justify-center border border-cyan-300/60 shadow-[0_0_15px_rgba(0,255,255,0.2)]"
-              >
-                <ImageIcon className="text-cyan-300" />
-                <span className="text-xs mt-1">Live Attendance</span>
-              </motion.div>
+              <div className="w-24 h-24 rounded-xl bg-[#0c2333] flex items-center justify-center border border-cyan-300">
+                {liveImage ? (
+                  <img src={liveImage} className="w-20 h-20 rounded-lg object-cover" />
+                ) : (
+                  <>
+                    <ImageIcon className="text-cyan-300" />
+                    <span className="text-xs">Live</span>
+                  </>
+                )}
+              </div>
 
-              <motion.div
-                whileHover={{ scale: 1.07 }}
-                className="w-24 h-24 rounded-xl	bg-[#0c2333]
-                flex flex-col items-center justify-center border border-cyan-300/60 shadow-[0_0_15px_rgba(0,255,255,0.2)]"
-              >
-                <ImageIcon className="text-cyan-300" />
-                <span className="text-xs mt-1">Uploaded</span>
-              </motion.div>
+              <div className="w-24 h-24 rounded-xl bg-[#0c2333] flex items-center justify-center border border-cyan-300">
+                {registeredImage ? (
+                  <img src={registeredImage} className="w-20 h-20 rounded-lg object-cover" />
+                ) : (
+                  <>
+                    <ImageIcon className="text-cyan-300" />
+                    <span className="text-xs">Uploaded</span>
+                  </>
+                )}
+              </div>
 
-              <span className="text-xs bg-green-500 text-white px-3 py-1 rounded-lg shadow-[0_0_12px_rgba(0,255,0,0.4)]">
-                Face Verified
-              </span>
+              {faceStatus === "verified" && (
+                <span className="text-xs bg-green-500 text-white px-3 py-1 rounded-lg">
+                  Face Verified
+                </span>
+              )}
+
+              {faceStatus === "failed" && (
+                <span className="text-xs bg-red-500 text-white px-3 py-1 rounded-lg">
+                  Not Verified
+                </span>
+              )}
+
+              {matchScore !== null && (
+                <p className="text-xs text-cyan-300 mt-1">
+                  Match Score: {(matchScore * 100).toFixed(2)}%
+                </p>
+              )}
+
+              {faceDistance !== null && (
+                <p className="text-xs text-cyan-300">
+                  Face Distance: {faceDistance.toFixed(3)}
+                </p>
+              )}
             </div>
           </div>
         </motion.div>
 
-        
-        <motion.div
-          data-aos="fade-up"
-          className="relative bg-[#081523] border border-cyan-400/30 rounded-2xl px-8 py-8 mt-8 backdrop-blur-sm"
-        >
-
-          <GlowLine className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[2px] bg-cyan-300/40" />
-          <GlowLine className="absolute bottom-0 left-1/2 -translate-x-1/2 w-28 h-[2px] bg-cyan-300/40" />
+        {/* STUDENT DETAILS */}
+        <motion.div className="relative bg-[#081523] border border-cyan-400/30 rounded-2xl px-8 py-8 mt-8 backdrop-blur-sm">
 
           <h2 className="text-center text-cyan-200 font-semibold mb-6 text-lg">
             STUDENT DETAILS
@@ -270,24 +349,17 @@ export default function AttendanceForm() {
 
           <div className="grid grid-cols-2 gap-8">
 
-            
             <div className="text-sm space-y-4">
 
               <div>
                 <p className="text-gray-400 text-xs mb-1">GPS Coordinates</p>
-                <p className="text-cyan-200 font-medium">
-                  {gps} <span className="text-gray-500">(Auto-Filled)</span>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Clock className="text-cyan-300" size={15} />
-                <span>2 PM – 4 PM</span>
+                <p className="text-cyan-200 font-medium">{gps}</p>
               </div>
 
               <div>
                 <p className="text-gray-400 text-xs mb-1">Location Badge</p>
                 <motion.button
+                  onClick={getMyLocation}
                   whileHover={{ scale: 1.07 }}
                   className="px-4 py-2 text-sm text-white rounded-lg"
                   style={buttonGradient}
@@ -296,34 +368,40 @@ export default function AttendanceForm() {
                 </motion.button>
               </div>
 
-              <div className="flex items-center gap-2 text-green-400">
-                <CheckCircle size={16} />
-                <span>Location Status: Verified</span>
-              </div>
+              {locationStatus === "verified" && (
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircle size={16} />
+                  <span>Location Status: Verified</span>
+                </div>
+              )}
 
-              <div>
-                <p className="text-gray-400 text-xs mb-1">Subjects Attended</p>
-                <motion.button
-                  whileHover={{ scale: 1.07 }}
-                  className="px-4 py-2 text-sm text-white rounded-lg"
-                  style={buttonGradient}
-                >
-                  Fetch My Location
-                </motion.button>
-              </div>
+              {locationStatus === "failed" && (
+                <div className="flex items-center gap-2 text-red-400">
+                  <CheckCircle size={16} />
+                  <span>Location Status: Not Matched</span>
+                </div>
+              )}
             </div>
 
-            {/* RIGHT */}
             <div className="space-y-4">
-              <input placeholder="Name" style={inputBase} />
-              <input placeholder="Email" style={inputBase} />
-              <select style={inputBase}><option>B-Tech</option></select>
-              <select style={inputBase}><option>CSE</option></select>
-              <select style={inputBase}><option>101</option></select>
-              <select style={inputBase}><option>Machine Learning, Robotics</option></select>
+              <input value={fullName} style={inputBase} disabled />
+              <input value={email} style={inputBase} disabled />
+              <select style={inputBase} disabled><option>{course}</option></select>
+              <select style={inputBase} disabled><option>{branch}</option></select>
+              <select style={inputBase} disabled><option>{year}</option></select>
+              <select style={inputBase} disabled><option>{qid}</option></select>
             </div>
 
           </div>
+
+          <motion.button
+            onClick={submitAttendance}
+            whileHover={{ scale: 1.07 }}
+            className="mt-8 px-6 py-3 bg-cyan-500 rounded-xl text-white font-semibold mx-auto block shadow-lg"
+          >
+            Submit Attendance
+          </motion.button>
+
         </motion.div>
 
       </div>

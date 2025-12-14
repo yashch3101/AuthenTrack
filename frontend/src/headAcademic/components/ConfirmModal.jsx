@@ -9,28 +9,61 @@ export default function ConfirmModal({
   setPdfUrl,
   setFinalPdfUrl,
   setShareUrl,
-  setShowFinalPopup
+  setShowFinalPopup,
+  eventId
 }) {
 
-  const handleApprove = () => {
+  const directorToken = localStorage.getItem("directorToken");
 
-    // Backend-generated signed PDF (dummy for now)
-    const finalPdf = "/assets/final-approved-attendance.pdf";
-    const shareLink = "https://event.com/final/XYZ123";
+  const handleApprove = async () => {
+    try {
+      if (!signatureImage) {
+        alert("Please add your signature before approval!");
+        return;
+      }
 
-    setApproved(true);
-    setPdfUrl(finalPdf);
-    setFinalPdfUrl(finalPdf);
-    setShareUrl(shareLink);
+      const res = await fetch(
+        "http://localhost:5000/api/director/approval/final-approve",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${directorToken}`
+          },
+          body: JSON.stringify({
+            eventId,
+            signatureImage
+          })
+        }
+      );
 
-    // Show popup
-    setShowFinalPopup(true);
+      const data = await res.json();
+      console.log("FINAL APPROVAL RESPONSE =>", data);
 
-    setShowConfirm(false);
+      if (data.success) {
+        // Update UI states
+        setApproved(true);
+        setPdfUrl(data.finalPdfUrl);
+        setFinalPdfUrl(data.finalPdfUrl);
+        setShareUrl(data.finalPdfUrl);
+
+        setShowFinalPopup(true); // show final popup
+        setShowConfirm(false);   // close modal
+      } else {
+        alert(data.message || "Approval failed");
+      }
+
+    } catch (err) {
+      console.log("FINAL APPROVAL ERROR =>", err);
+      alert("Server error during approval");
+    }
   };
 
+  // --------------------------
+  // ❌ REJECT HANDLER
+  // --------------------------
   const handleReject = () => {
-    alert("Report rejected and sent to Coordinator.");
+    alert("Report rejected and sent back to Coordinator.");
     setShowConfirm(false);
   };
 
@@ -81,6 +114,3 @@ export default function ConfirmModal({
     </div>
   );
 }
-
-
-

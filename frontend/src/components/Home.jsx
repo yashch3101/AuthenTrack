@@ -9,6 +9,8 @@ import neonEarth from "../assets/edu.png";
 export default function Hero() {
   const navigate = useNavigate();
 
+  const isLoggedIn = !!localStorage.getItem("studentToken");
+
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
@@ -59,14 +61,16 @@ export default function Hero() {
             Get Started
           </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 rounded-lg font-semibold border border-[#14F1F9] text-[#14F1F9] hover:bg-[#14F1F9] hover:text-black transition"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </motion.button>
+          {!isLoggedIn && (
+            <motion.button
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 rounded-lg font-semibold border border-[#14F1F9] text-[#14F1F9] hover:bg-[#14F1F9] hover:text-black transition"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </motion.button>
+          )}
         </div>
       </div>
 

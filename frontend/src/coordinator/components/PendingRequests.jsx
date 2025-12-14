@@ -1,8 +1,60 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 
-export default function PendingRequests({ data, onApprove, onReject }) {
+export default function PendingRequests({ data = [], refresh }) {
+  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(null);
+
+  const handleApproveBackend = async (student) => {
+    try {
+      setLoading(student._id);
+
+      const res = await fetch(
+        `http://localhost:5000/api/coordinator/review/approve/${student._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const json = await res.json();
+      console.log("APPROVED:", json);
+
+      refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleRejectBackend = async (student) => {
+    try {
+      setLoading(student._id);
+
+      const res = await fetch(
+        `http://localhost:5000/api/coordinator/review/reject/${student._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const json = await res.json();
+      console.log("REJECTED:", json);
+
+      refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="mt-10 w-full bg-[#06121f]/60 border border-cyan-500/20 rounded-2xl 
@@ -20,70 +72,86 @@ export default function PendingRequests({ data, onApprove, onReject }) {
           </p>
         )}
 
-        {data.map((student, index) => (
+        {data.map((student) => (
           <motion.div
-            key={student.id}
+            key={student._id}
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className="bg-[#0b1b2a]/60 border border-cyan-500/20 rounded-xl p-6 shadow-lg"
           >
-
-            {/* TOP ROW */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-              {/* Student Info */}
+              {/* STUDENT INFO */}
               <div className="space-y-2">
                 <h3 className="text-cyan-300 font-semibold">Student Info</h3>
 
                 <div className="text-gray-300 text-sm">
-                  <p><span className="text-cyan-400">ID:</span> {student.id}</p>
-                  <p><span className="text-cyan-400">Name:</span> {student.name}</p>
+                  <p><span className="text-cyan-400">ID:</span> {student.studentId}</p>
+                  <p><span className="text-cyan-400">Name:</span> {student.fullName}</p>
                   <p><span className="text-cyan-400">Course:</span> {student.course}</p>
                   <p><span className="text-cyan-400">Year:</span> {student.year}</p>
                 </div>
 
                 <p className="text-sm mt-2 text-cyan-400">
-                  Face Match Score: {student.faceMatch}
+                  Face Match Score: {student.matchScore?.toFixed(2)}
                 </p>
               </div>
 
-              {/* Photos */}
+              {/* PHOTOS */}
               <div className="flex flex-col items-center">
                 <div className="flex gap-4">
-                  <img src={student.photo1} className="w-20 h-20 rounded-xl border border-cyan-500/20" />
-                  <img src={student.photo2} className="w-20 h-20 rounded-xl border border-cyan-500/20" />
+                  <img
+                    src={student.livePhotoUrl}
+                    className="w-20 h-20 rounded-xl border border-cyan-500/20 object-cover"
+                  />
+                  <img
+                    src={student.registeredPhotoUrl}
+                    className="w-20 h-20 rounded-xl border border-cyan-500/20 object-cover"
+                  />
                 </div>
 
                 <div className="mt-4">
                   <div className="w-16 h-16 rounded-full border-4 border-cyan-400 
-                    flex items-center justify-center text-cyan-300 font-bold text-lg 
-                    shadow-[0_0_15px_rgba(0,255,255,0.4)]">
-                    {student.faceMatch}
+                    flex items-center justify-center text-cyan-300 font-bold text-lg">
+                    {(student.matchScore * 100).toFixed(0)}%
                   </div>
                 </div>
               </div>
 
-              {/* Actions */}
+              {/* ACTION BUTTONS */}
               <div className="flex flex-col gap-4 justify-center">
                 <button
-                  onClick={() => onApprove(student)}
-                  className="flex items-center justify-center gap-2 bg-green-600/20 
-                  border border-green-500/40 py-2 rounded-xl text-green-300 
-                  hover:bg-green-600/30 transition"
+                  disabled={loading === student._id}
+                  onClick={() => handleApproveBackend(student)}
+                  className={`flex items-center justify-center gap-2 py-2 rounded-xl
+                    ${
+                      loading === student._id
+                        ? "bg-green-500/10 text-green-400 cursor-wait"
+                        : "bg-green-600/20 text-green-300 border border-green-500/40"
+                    }
+                  `}
                 >
-                  <Check size={18} /> Approve
+                  <Check size={18} />
+                  {loading === student._id ? "Approving..." : "Approve"}
                 </button>
 
                 <button
-                  onClick={() => onReject(student)}
-                  className="flex items-center justify-center gap-2 bg-red-600/20 
-                  border border-red-500/40 py-2 rounded-xl text-red-300 
-                  hover:bg-red-600/30 transition"
+                  disabled={loading === student._id}
+                  onClick={() => handleRejectBackend(student)}
+                  className={`flex items-center justify-center gap-2 py-2 rounded-xl
+                    ${
+                      loading === student._id
+                        ? "bg-red-500/10 text-red-400 cursor-wait"
+                        : "bg-red-600/20 text-red-300 border border-red-500/40"
+                    }
+                  `}
                 >
-                  <X size={18} /> Reject
+                  <X size={18} />
+                  {loading === student._id ? "Rejecting..." : "Reject"}
                 </button>
               </div>
+
             </div>
 
             {/* BOTTOM ROW */}
@@ -91,29 +159,15 @@ export default function PendingRequests({ data, onApprove, onReject }) {
               <div className="grid grid-cols-3 text-sm text-gray-400">
 
                 <div>
-                  <p className="text-cyan-300 font-semibold">Event Time</p>
-                  <p>{student.time}</p>
+                  <p className="text-cyan-300 font-semibold">Distance</p>
+                  <p>{student.distanceMeters?.toFixed(2)} m</p>
                 </div>
 
                 <div>
                   <p className="text-cyan-300 font-semibold">Location Match</p>
-                  <p className={student.location === "Match" ? "text-green-300" : "text-red-300"}>
-                    {student.location}
+                  <p className={student.locationMatched ? "text-green-300" : "text-red-300"}>
+                    {student.locationMatched ? "Matched" : "Not Matched"}
                   </p>
-                </div>
-
-                <div>
-                  <p className="text-cyan-300 font-semibold">Subjects</p>
-                  <div className="flex gap-2 mt-1">
-                    {student.subjects.map((sub, i) => (
-                      <span
-                        key={i}
-                        className="bg-cyan-600/20 px-2 py-1 rounded-md border border-cyan-400/20 text-cyan-300"
-                      >
-                        {sub}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
               </div>
@@ -121,9 +175,7 @@ export default function PendingRequests({ data, onApprove, onReject }) {
 
           </motion.div>
         ))}
-
       </div>
     </div>
   );
 }
-

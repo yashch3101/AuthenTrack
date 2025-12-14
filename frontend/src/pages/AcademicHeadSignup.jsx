@@ -10,11 +10,55 @@ export default function AcademicHeadSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const navigate = useNavigate(); // ⭐ Added navigation
+  // ⭐ Form States
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [secret, setSecret] = useState("");
 
-  const handleSignup = () => {
-    // Later add validation here
-    navigate("/dashboard/university/academic-head/dashboard"); // ⭐ Signup success → Dashboard
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleSignup = async () => {
+    if (!fullName || !email || !phone || !password || !confirm || !secret) {
+      return alert("Please fill all fields");
+    }
+
+    if (password !== confirm) {
+      return alert("Passwords do not match");
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/director/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          phone,
+          password,
+          secretCode: secret,
+        }),
+      });
+
+      const data = await res.json();
+      console.log("DIRECTOR SIGNUP =>", data);
+
+      if (data.message === "Director Registered Successfully") {
+        alert("Account Created! Please login.");
+        navigate("/dashboard/university/academic-head/login");
+      } else {
+        alert(data.message || "Signup failed");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Server Error");
+    }
+    setLoading(false);
   };
 
   return (
@@ -120,13 +164,28 @@ export default function AcademicHeadSignup() {
           <div className="space-y-4">
 
             {/* Full Name */}
-            <FieldIcon placeholder="Full Name" icon="👤" />
+            <FieldIcon
+              placeholder="Full Name"
+              icon="👤"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+            />
 
             {/* Email */}
-            <FieldIcon placeholder="Email Address" icon="✉️" />
+            <FieldIcon
+              placeholder="Email Address"
+              icon="✉️"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
             {/* Phone */}
-            <FieldIcon placeholder="Phone Number" icon="📞" />
+            <FieldIcon
+              placeholder="Phone Number"
+              icon="📞"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
 
             {/* PASSWORD */}
             <PasswordFieldIcon
@@ -134,6 +193,8 @@ export default function AcademicHeadSignup() {
               show={showPassword}
               onToggle={() => setShowPassword(!showPassword)}
               icon={showPassword ? openEye : closeEye}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             {/* CONFIRM PASSWORD */}
@@ -142,11 +203,18 @@ export default function AcademicHeadSignup() {
               show={showConfirm}
               onToggle={() => setShowConfirm(!showConfirm)}
               icon={showConfirm ? openEye : closeEye}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
             />
 
-            {/* SECRET CODE WITH TOOLTIP */}
+            {/* SECRET ACCESS CODE */}
             <div className="relative">
-              <FieldIcon placeholder="Secret Access Code" icon="🛡️" />
+              <FieldIcon
+                placeholder="Secret Access Code"
+                icon="🛡️"
+                value={secret}
+                onChange={(e) => setSecret(e.target.value)}
+              />
 
               <div
                 className="
@@ -163,16 +231,18 @@ export default function AcademicHeadSignup() {
             {/* SIGNUP BUTTON */}
             <motion.button
               whileHover={{ scale: 1.05 }}
-              onClick={handleSignup}   // ⭐ Added navigation
+              onClick={handleSignup}
+              disabled={loading}
               className="
                 w-full py-3 mt-2 rounded-xl font-semibold text-white
                 bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400
                 shadow-[0_0_35px_rgba(255,0,200,0.7)]
                 hover:shadow-[0_0_50px_rgba(0,200,255,1)]
                 transition-all duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
-              Activate Academic Head Account
+              {loading ? "Creating Account..." : "Activate Academic Head Account"}
             </motion.button>
           </div>
 
@@ -194,13 +264,15 @@ export default function AcademicHeadSignup() {
 }
 
 /* ICON FIELD ELEMENT */
-function FieldIcon({ placeholder, icon }) {
+function FieldIcon({ placeholder, icon, value, onChange }) {
   return (
     <div className="relative">
       <span className="absolute left-3 top-3 text-gray-300 text-lg">{icon}</span>
       <input
         type="text"
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="
           w-full pl-10 pr-3 py-3 bg-transparent text-white rounded-xl 
           border border-cyan-500/30 outline-none
@@ -214,13 +286,15 @@ function FieldIcon({ placeholder, icon }) {
 }
 
 /* PASSWORD FIELD ELEMENT */
-function PasswordFieldIcon({ placeholder, show, onToggle, icon }) {
+function PasswordFieldIcon({ placeholder, show, onToggle, icon, value, onChange }) {
   return (
     <div className="relative">
       <span className="absolute left-3 top-3 text-gray-300 text-lg">🔒</span>
       <input
         type={show ? "text" : "password"}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="
           w-full pl-10 pr-10 py-3 bg-transparent text-white rounded-xl 
           border border-cyan-500/30 outline-none
@@ -237,10 +311,3 @@ function PasswordFieldIcon({ placeholder, show, onToggle, icon }) {
     </div>
   );
 }
-
-
-
-
-
-
-

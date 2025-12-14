@@ -1,22 +1,17 @@
-# app/cloudinary_utils.py
 import os
 from pathlib import Path
-from dotenv import load_dotenv, find_dotenv   # <-- MAKE SURE find_dotenv is imported
+from dotenv import load_dotenv, find_dotenv
 import cloudinary
 import cloudinary.uploader
 
-# Try to find a .env automatically (searches cwd and parents)
-dotenv_path = find_dotenv()   # returns '' if none found
+dotenv_path = find_dotenv()
 if dotenv_path:
     load_dotenv(dotenv_path)
 else:
-    # fallback: try app/.env (useful if you intentionally put .env inside app/)
     possible = Path(__file__).resolve().parent / ".env"
     if possible.exists():
         load_dotenv(possible)
-    # otherwise we'll rely on environment variables already set in the shell
 
-# Read credentials from environment
 CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
 API_KEY = os.getenv("CLOUDINARY_API_KEY")
 API_SECRET = os.getenv("CLOUDINARY_API_SECRET")

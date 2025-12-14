@@ -31,10 +31,20 @@ export default function SignatureBox({ signatureImage, setSignatureImage }) {
     setDrawing(false);
   }
 
-  function save() {
-    const data = canvasRef.current.toDataURL();
-    setSignatureImage(data);
+  async function save() {
+  const canvas = canvasRef.current;
+  if (!canvas) {
+    alert("Please draw signature first!");
+    return;
   }
+
+  const data = canvas.toDataURL("image/png");
+
+  setSignatureImage(data);
+
+  alert("Signature Saved!");
+}
+
 
   function clear() {
     const canvas = canvasRef.current;
@@ -44,11 +54,15 @@ export default function SignatureBox({ signatureImage, setSignatureImage }) {
   }
 
   function upload(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => setSignatureImage(reader.result);
-    reader.readAsDataURL(file);
-  }
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    setSignatureImage(reader.result);
+  };
+
+  reader.readAsDataURL(file);
+}
 
   return (
     <div className="bg-[#071122]/60 border border-cyan-500/20 rounded-2xl p-6 shadow-lg mb-6">
@@ -74,18 +88,29 @@ export default function SignatureBox({ signatureImage, setSignatureImage }) {
       </div>
 
       <div className="flex gap-3 mt-4 justify-center">
-        <button onClick={save} className="px-4 py-2 bg-cyan-600/40 rounded-lg">
+        <button
+          onClick={save}
+          className="px-4 py-2 bg-cyan-600/40 rounded-lg"
+        >
           Save
         </button>
 
-        <button onClick={clear} className="px-4 py-2 bg-red-600/40 rounded-lg">
+        <button
+          onClick={clear}
+          className="px-4 py-2 bg-red-600/40 rounded-lg"
+        >
           Clear
         </button>
 
         <label className="px-4 py-2 bg-blue-600/40 rounded-lg cursor-pointer flex items-center gap-2">
           <Upload className="w-4 h-4" />
           Upload
-          <input type="file" accept="image/*" className="hidden" onChange={upload} />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={upload}
+          />
         </label>
       </div>
     </div>

@@ -2,6 +2,16 @@ import React from "react";
 import { Download } from "lucide-react";
 
 export default function FinalPDFViewer({ pdfUrl }) {
+
+  // 🔥 Correct full URL builder
+  const fullPdfUrl = pdfUrl
+    ? pdfUrl.startsWith("http")
+      ? pdfUrl
+      : pdfUrl.includes("director_pdfs")
+        ? `http://localhost:5000/${pdfUrl}`
+        : `http://localhost:5000/pdf/${pdfUrl}`
+    : null;
+
   return (
     <div
       className="
@@ -21,27 +31,27 @@ export default function FinalPDFViewer({ pdfUrl }) {
           rounded-xl overflow-hidden flex items-center justify-center
         "
       >
-        {/* ✔ PDF NOT AVAILABLE YET */}
-        {!pdfUrl && (
-          <p className="text-gray-400 text-sm">
+        {/* No PDF Yet */}
+        {!fullPdfUrl && (
+          <p className="text-gray-400 text-sm text-center px-4">
             Final attendance PDF will appear here after coordinator submission.
           </p>
         )}
 
-        {/* ✔ PDF Available */}
-        {pdfUrl && (
+        {/* Show PDF */}
+        {fullPdfUrl && (
           <iframe
-            src={pdfUrl}
+            src={fullPdfUrl}
             className="w-full h-full rounded-xl"
             title="final-pdf"
           ></iframe>
         )}
       </div>
 
-      {/* Download button only when PDF exists */}
-      {pdfUrl && (
+      {/* Download button */}
+      {fullPdfUrl && (
         <button
-          onClick={() => window.open(pdfUrl, "_blank")}
+          onClick={() => window.open(fullPdfUrl, "_blank")}
           className="
             w-full mt-5 py-3 rounded-xl font-semibold text-white
             bg-gradient-to-r from-cyan-400 to-blue-500
@@ -55,5 +65,3 @@ export default function FinalPDFViewer({ pdfUrl }) {
     </div>
   );
 }
-
-

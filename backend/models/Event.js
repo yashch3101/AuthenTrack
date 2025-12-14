@@ -1,17 +1,42 @@
 const mongoose = require("mongoose");
 
 const eventSchema = new mongoose.Schema({
-  coordinatorId: String,
-  eventName: String,
-  date: String,
-  time: String,
-  venue: String,
-  location: {
-    lat: Number,
-    lon: Number,
-    radius: Number,
+  eventName: { type: String, required: true },
+  eventDate: { type: String, required: true },
+  eventVenue: { type: String, required: true },
+
+  // ⭐ ADD EVENT LOCATION
+  latitude: {
+    type: Number,
+    required: true,
   },
-  subjects: [String],
-});
+  longitude: {
+    type: Number,
+    required: true,
+  },
+
+  // Coordinator who created the event
+  createdBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Coordinator",
+    required: true 
+  },
+
+  // Event Description
+  description: { type: String },
+
+  finalPdfUrl: { type: String, default: "" },
+
+  latestPdfName: { type: String, default: "" },
+  finalPdfName: { type: String, default: "" }, 
+
+  coordinatorMessage: { type: String, default: "" },
+
+  directorSignature: { type: String, default: "" },
+
+  approvedStudents: { type: Number, default: 0 },
+  verifiedCount: { type: Number, default: 0 },
+
+}, { timestamps: true });
 
 module.exports = mongoose.model("Event", eventSchema);

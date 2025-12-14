@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 import CoordinatorNavbar from "./components/CoordinatorNavbar";
@@ -6,75 +6,130 @@ import PendingRequests from "./components/PendingRequests";
 import ApprovedList from "./components/ApprovedList";
 import Events from "./components/Events";
 import PdfGenerator from "./components/PdfGenerator";
-import EventAttendancePanel from "./components/EventAttendancePanel";
 
 export default function CoordinatorDashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [eventId, setEventId] = useState(null);
 
-  const initialPending = [
-    {
-      id: "Q-12345",
-      name: "Anya Sharma",
-      course: "B.Tech CSE",
-      year: "2nd Year",
-      faceMatch: "92%",
-      photo1: "https://i.pravatar.cc/150?img=13",
-      photo2: "https://i.pravatar.cc/150?img=14",
-      location: "Match",
-      time: "10:00 AM",
-      subjects: ["DBMS", "Java"],
-    },
-    {
-      id: "Q-87341",
-      name: "Amit Marrow",
-      course: "BCA",
-      year: "1st Year",
-      faceMatch: "88%",
-      photo1: "https://i.pravatar.cc/150?img=15",
-      photo2: "https://i.pravatar.cc/150?img=16",
-      location: "Mismatch",
-      time: "11:00 AM",
-      subjects: ["AI", "Python"],
-    },
-  ];
+  const token = localStorage.getItem("token");
 
-  const [pending, setPending] = useState(initialPending);
+  const [pending, setPending] = useState([]);
   const [approved, setApproved] = useState([]);
-
-  const [verifiedEntries, setVerifiedEntries] = useState(0);
-  const [locationFailures, setLocationFailures] = useState(0);
-  const [suspiciousAttempts, setSuspiciousAttempts] = useState(0);
+  const [verifiedEntries] = useState(0);
+  const [locationFailures] = useState(0);
+  const [suspiciousAttempts] = useState(0);
   const [totalEventHours] = useState("8 hrs");
 
-  const addIncomingStudent = (student) => {
-    if (!pending.find((s) => s.id === student.id) && !approved.find((s) => s.id === student.id)) {
-      setPending((prev) => [student, ...prev]);
-    }
+  // -----------------------------
+  // ⭐ 1. Load Pending
+  // -----------------------------
+  const loadPending = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/coordinator/review/pending",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    setVerifiedEntries((v) => v + 1);
-
-    if (student.location?.toLowerCase() !== "match") {
-      setLocationFailures((v) => v + 1);
-    }
-
-    if (Number(student.faceMatch?.replace("%", "")) < 60) {
-      setSuspiciousAttempts((v) => v + 1);
+      const data = await res.json();
+      setPending(data.pending || []);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleApprove = (student) => {
-    setApproved((prev) => [student, ...prev]);
-    setPending((prev) => prev.filter((p) => p.id !== student.id));
+  // -----------------------------
+  // ⭐ 2. Load Verified
+  // -----------------------------
+  const loadApproved = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/coordinator/review/verified",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await res.json();
+      setApproved(data.verified || []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleReject = (student) => {
-    setPending((prev) => prev.filter((p) => p.id !== student.id));
+  // -----------------------------
+  // ⭐ 3. Run on Page Load
+  // -----------------------------
+  useEffect(() => {
+    loadPending();
+    loadApproved();
+  }, []);
+
+  useEffect(() => {
+    async function fetchEvent() {
+      try {
+        const res = await fetch("http://localhost:5000/api/coordinator/event/latest");
+        const data = await res.json();
+        if (data.success) {
+          setEventId(data.event._id);
+        }
+      } catch (err) {
+        console.log("EVENT LOAD ERROR", err);
+      }
+    }
+    fetchEvent();
+  }, []);
+
+  // -----------------------------
+  // ⭐ 4. APPROVE (OPTIONAL: used by ApprovedList)
+  // -----------------------------
+  const handleApprove = async (student) => {
+    try {
+      await fetch(
+        `http://localhost:5000/api/coordinator/review/approve/${student._id}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      loadPending();
+      loadApproved();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  // -----------------------------
+  // ⭐ 5. REJECT (OPTIONAL: used by ApprovedList)
+  // -----------------------------
+  const handleReject = async (student) => {
+    try {
+      await fetch(
+        `http://localhost:5000/api/coordinator/review/reject/${student._id}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      loadPending();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // -----------------------------
+  // ⭐ 6. Remove approved (UI only)
+  // -----------------------------
   const handleRemoveApproved = (id) => {
-    setApproved((prev) => prev.filter((s) => s.id !== id));
+    setApproved((prev) => prev.filter((s) => s._id !== id));
   };
 
+  // -----------------------------
+  // ⭐ 7. PDF GENERATION
+  // -----------------------------
   const openPdfAndGenerate = () => {
     setActiveSection("pdf");
 
@@ -84,12 +139,13 @@ export default function CoordinatorDashboard() {
     }, 300);
   };
 
+  // Check Approved panel open
   const isApprovedPanelOpen = activeSection === "approved";
 
   return (
     <div className="min-h-screen bg-[#020617] text-white relative overflow-hidden">
 
-      {/* BACKGROUND GLOW */}
+      {/* BACKGROUND */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="w-[900px] h-[900px] bg-cyan-500/25 blur-[200px] absolute 
           top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -99,7 +155,7 @@ export default function CoordinatorDashboard() {
 
       <div className="pt-32 max-w-7xl mx-auto px-6 pb-24 relative">
 
-        {/* 6 STATS BOXES */}
+        {/* STATS */}
         {activeSection !== "pdf" && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-8">
 
@@ -116,19 +172,18 @@ export default function CoordinatorDashboard() {
         {/* SECTIONS */}
         {activeSection === "dashboard" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <EventAttendancePanel onStudentDetected={addIncomingStudent} />
+            <Events />
           </motion.div>
         )}
 
         {activeSection === "pending" && (
-          <motion.div
-            animate={{ x: isApprovedPanelOpen ? -160 : 0 }}
-            transition={{ duration: 0.35 }}
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <PendingRequests
               data={pending}
-              onApprove={handleApprove}
-              onReject={handleReject}
+              refresh={() => {
+                loadPending();
+                loadApproved();
+              }}
             />
           </motion.div>
         )}
@@ -141,13 +196,13 @@ export default function CoordinatorDashboard() {
 
         {activeSection === "pdf" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <PdfGenerator approved={approved} />
+            <PdfGenerator approved={approved} eventId={eventId} />
           </motion.div>
         )}
 
       </div>
 
-      {/* APPROVED LIST SLIDE PANEL */}
+      {/* APPROVED SIDE PANEL */}
       <motion.div
         initial={{ x: 400 }}
         animate={{ x: isApprovedPanelOpen ? 0 : 400 }}
@@ -158,8 +213,9 @@ export default function CoordinatorDashboard() {
       >
         <ApprovedList
           approved={approved}
+          eventId={eventId}
           onClose={() => setActiveSection("pending")}
-          onSubmit={openPdfAndGenerate}
+          onSubmit={() => openPdfAndGenerate(eventId)}
           onRemove={handleRemoveApproved}
         />
       </motion.div>

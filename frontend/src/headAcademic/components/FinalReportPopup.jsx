@@ -3,6 +3,16 @@ import { Download, Link as LinkIcon, Send } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
+  
+  const handleDownload = () => {
+    if (!pdfUrl) return alert("PDF not generated yet!");
+    window.open(pdfUrl, "_blank");
+  };
+
+  const handleSend = () => {
+    alert("Final report sent to Coordinator.");
+  };
+
   return (
     <div className="
       fixed inset-0 bg-black/60 backdrop-blur-sm z-50 
@@ -20,6 +30,7 @@ export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
           text-white text-center
         "
       >
+
         {/* TITLE */}
         <h2 className="text-2xl font-bold text-cyan-300">
           Final Report Generated
@@ -29,18 +40,26 @@ export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
           Signed and verified by Academic Head
         </p>
 
-        {/* CLEAN PDF BOX WITHOUT IFRAME */}
+        {/* PDF PREVIEW */}
         <div
           className="
             w-full h-[260px] mb-6 rounded-xl
             border border-cyan-500/30
             shadow-[0_0_25px_rgba(0,200,255,0.15)]
-            bg-[#04101d]/60 flex items-center justify-center
+            bg-[#04101d]/60 overflow-hidden
           "
         >
-          <p className="text-gray-500 text-sm opacity-70">
-            PDF preview will appear here once backend uploads it.
-          </p>
+          {pdfUrl ? (
+            <iframe
+              src={pdfUrl}
+              className="w-full h-full rounded-xl"
+              title="final-pdf-preview"
+            ></iframe>
+          ) : (
+            <p className="text-gray-500 text-sm opacity-70 p-6">
+              PDF preview will appear once backend uploads it.
+            </p>
+          )}
         </div>
 
         {/* SHARE LINK BOX */}
@@ -51,6 +70,7 @@ export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
           "
         >
           <label className="text-gray-300 text-sm">Shareable Link</label>
+
           <div className="flex mt-2">
             <input
               className="
@@ -73,10 +93,12 @@ export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
           </div>
         </div>
 
-        {/* BUTTONS */}
+        {/* ACTION BUTTONS */}
         <div className="flex justify-between mt-6">
+
+          {/* DOWNLOAD */}
           <button
-            onClick={() => alert('PDF will download after backend integration')}
+            onClick={handleDownload}
             className="
               flex-1 py-3 mr-3 rounded-xl font-semibold
               bg-gradient-to-r from-cyan-400 to-blue-500
@@ -87,8 +109,9 @@ export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
             Download PDF
           </button>
 
+          {/* SEND */}
           <button
-            onClick={() => alert('Sent to Coordinator')}
+            onClick={handleSend}
             className="
               flex-1 py-3 ml-3 rounded-xl font-semibold
               bg-gradient-to-r from-purple-500 to-pink-500
@@ -98,17 +121,18 @@ export default function FinalReportPopup({ pdfUrl, shareUrl, onClose }) {
             <Send className="w-4 h-4 inline-block mr-2" />
             Send
           </button>
+
         </div>
 
-        {/* CLOSE BUTTON */}
+        {/* CLOSE */}
         <button
           onClick={onClose}
           className="mt-6 text-sm text-gray-400 hover:text-white"
         >
           Close
         </button>
+
       </motion.div>
     </div>
   );
 }
-

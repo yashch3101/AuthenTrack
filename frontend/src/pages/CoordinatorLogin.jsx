@@ -8,11 +8,50 @@ import backBtn from "../assets/back-button.png";
 
 export default function CoordinatorLogin() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
   const navigate = useNavigate();
 
-  // Redirect to new coordinator dashboard
-  const handleLogin = () => {
-    navigate("/dashboard/university/coordinator/dashboard");
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  // ⭐ Backend Login API
+  const handleLogin = async () => {
+    if (!form.email || !form.password) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/coordinator/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      // ⭐ Save token
+      localStorage.setItem("token", data.token);
+
+      alert("Login Successful!");
+
+      // ⭐ Navigate to Coordinator Dashboard
+      navigate("/dashboard/university/coordinator/dashboard");
+
+    } catch (err) {
+      console.error(err);
+      alert("Server Error");
+    }
   };
 
   return (
@@ -81,6 +120,9 @@ export default function CoordinatorLogin() {
             <label className="text-gray-300 text-sm">Email Address</label>
             <input
               type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
               className="w-full mt-1 p-3 bg-[#0a0f1f] border border-cyan-500/30 rounded-xl 
               text-white focus:outline-none focus:border-cyan-400"
               placeholder="Email Address"
@@ -94,6 +136,9 @@ export default function CoordinatorLogin() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
                 className="w-full mt-1 p-3 bg-[#0a0f1f] border border-cyan-500/30 rounded-xl 
                 text-white focus:outline-none focus:border-cyan-400"
                 placeholder="Password"
@@ -145,4 +190,3 @@ export default function CoordinatorLogin() {
     </div>
   );
 }
-

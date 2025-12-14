@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import openEye from "../assets/open-eye.png";
 import closeEye from "../assets/close-eye.png";
@@ -10,7 +10,53 @@ export default function AcademicHeadLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [showAccessCode, setShowAccessCode] = useState(false);
 
-  // Neon Shield Icon (until you replace with PNG)
+  // ⭐ Login form states
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [secretCode, setSecretCode] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  // ⭐ Backend Integration
+  const handleLogin = async () => {
+    if (!email || !password || !secretCode) {
+      return alert("Please fill all fields");
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/director/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          secretCode,
+        }),
+      });
+
+      const data = await res.json();
+      console.log("DIRECTOR LOGIN =>", data);
+
+      if (data.success) {
+        localStorage.setItem("directorToken", data.token);
+
+        alert("Login Successful 🎉");
+        navigate("/dashboard/university/academic-head/dashboard");
+      } else {
+        alert(data.message || "Invalid Credentials");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Server Error");
+    }
+
+    setLoading(false);
+  };
+
+  // Neon Shield Icon
   const ShieldIcon = ({ className = "w-16 h-16" }) => (
     <svg
       className={className}
@@ -43,7 +89,7 @@ export default function AcademicHeadLogin() {
   return (
     <div className="min-h-screen bg-[#020617] relative overflow-hidden flex items-center justify-center px-4">
 
-      {/* ⭐ BACK BUTTON (same as Coordinator UI) */}
+      {/* BACK BUTTON */}
       <motion.img
         src={backBtn}
         onClick={() => window.history.back()}
@@ -57,7 +103,7 @@ export default function AcademicHeadLogin() {
         "
       />
 
-      {/* ⭐ BACKGROUND — EXACT SAME AS COORDINATOR */}
+      {/* BACKGROUND */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(110)].map((_, i) => (
           <motion.div
@@ -86,7 +132,7 @@ export default function AcademicHeadLogin() {
         </div>
       </div>
 
-      {/* ⭐ OUTER NEON WRAPPER + STRONG GLOW */}
+      {/* OUTER NEON BOX */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -101,7 +147,7 @@ export default function AcademicHeadLogin() {
         }}
       >
 
-        {/* Inner Panel */}
+        {/* INNER PANEL */}
         <div
           className="bg-[#071025]/90 rounded-2xl px-8 py-10 backdrop-blur-xl"
           style={{
@@ -113,7 +159,7 @@ export default function AcademicHeadLogin() {
           }}
         >
 
-          {/* Heading + icon */}
+          {/* HEADING */}
           <div className="flex items-center gap-4 mb-6">
             <div
               className="p-2 rounded-full"
@@ -137,10 +183,10 @@ export default function AcademicHeadLogin() {
             </div>
           </div>
 
-          {/* ⭐ FORM */}
+          {/* FORM */}
           <div className="space-y-5">
 
-            {/* Email */}
+            {/* EMAIL */}
             <div>
               <label className="text-gray-300 text-sm mb-1 block">
                 Email Address
@@ -148,6 +194,8 @@ export default function AcademicHeadLogin() {
               <input
                 type="email"
                 placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="
                   w-full p-3 rounded-lg bg-transparent
                   border border-cyan-500/30 text-white 
@@ -156,7 +204,7 @@ export default function AcademicHeadLogin() {
               />
             </div>
 
-            {/* Password */}
+            {/* PASSWORD */}
             <div>
               <label className="text-gray-300 text-sm mb-1 block">
                 Password
@@ -165,6 +213,8 @@ export default function AcademicHeadLogin() {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="
                     w-full p-3 rounded-lg bg-transparent
                     border border-cyan-500/30 text-white 
@@ -179,7 +229,7 @@ export default function AcademicHeadLogin() {
               </div>
             </div>
 
-            {/* Access Code */}
+            {/* SECRET ACCESS CODE */}
             <div>
               <label className="text-gray-300 text-sm mb-1 block">
                 Secret Access Code
@@ -188,6 +238,8 @@ export default function AcademicHeadLogin() {
                 <input
                   type={showAccessCode ? "text" : "password"}
                   placeholder="Secret Access Code"
+                  value={secretCode}
+                  onChange={(e) => setSecretCode(e.target.value)}
                   className="
                     w-full p-3 rounded-lg bg-transparent
                     border border-cyan-500/30 text-white 
@@ -202,7 +254,7 @@ export default function AcademicHeadLogin() {
               </div>
             </div>
 
-            {/* Role + Forgot */}
+            {/* ROLE + FORGOT */}
             <div className="flex items-center justify-between">
               <span className="
                 px-3 py-1 bg-cyan-600/30 text-cyan-300 text-xs 
@@ -215,22 +267,25 @@ export default function AcademicHeadLogin() {
               </span>
             </div>
 
-            {/* Button */}
+            {/* LOGIN BUTTON */}
             <motion.button
               whileHover={{ scale: 1.05 }}
+              disabled={loading}
+              onClick={handleLogin}
               className="
                 w-full py-3 mt-2 rounded-xl font-semibold text-white
                 bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 
                 shadow-[0_0_35px_rgba(255,0,200,0.8)]
                 hover:shadow-[0_0_50px_rgba(0,200,255,1)]
                 transition-all duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
-              Login as Academic Head
+              {loading ? "Logging in..." : "Login as Academic Head"}
             </motion.button>
           </div>
 
-          {/* Footer Link */}
+          {/* FOOTER */}
           <p className="text-center text-gray-400 text-sm mt-6">
             New Academic Head?{" "}
             <Link
@@ -246,5 +301,3 @@ export default function AcademicHeadLogin() {
     </div>
   );
 }
-
-

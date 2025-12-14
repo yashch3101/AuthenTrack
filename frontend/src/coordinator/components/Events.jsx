@@ -1,52 +1,114 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, PlusCircle, Send, MapPin, Users } from "lucide-react";
+import { Calendar, PlusCircle, Send, MapPin, Users, LocateFixed } from "lucide-react";
 
 export default function Events() {
   const [showForm, setShowForm] = useState(false);
 
-  const [events, setEvents] = useState([
-    {
-      id: "E-001",
-      name: "Tech Innovation Summit",
-      date: "2025-01-20",
-      venue: "Auditorium Hall",
-      status: "Pending Director Approval",
-    },
-    {
-      id: "E-002",
-      name: "Cultural Fest 2025",
-      date: "2025-02-10",
-      venue: "Main Ground",
-      status: "Approved",
-    },
-  ]);
+  const [events, setEvents] = useState([]);
 
   const [newEvent, setNewEvent] = useState({
     name: "",
     date: "",
     venue: "",
     description: "",
+    latitude: "",
+    longitude: "",
   });
 
-  const handleEventSubmit = () => {
-    const push = {
-      id: "E-" + (events.length + 1).toString().padStart(3, "0"),
-      name: newEvent.name,
-      date: newEvent.date,
-      venue: newEvent.venue,
-      status: "Pending Director Approval",
-    };
+  const token = localStorage.getItem("token");
 
-    setEvents([...events, push]);
-    setNewEvent({ name: "", date: "", venue: "", description: "" });
-    setShowForm(false);
+  useEffect(() => {
+    async function loadEvents() {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/coordinator/event/my-events",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        if (data.events) setEvents(data.events);
+      } catch (err) {
+        console.log("Error loading events:", err);
+      }
+    }
+
+    loadEvents();
+  }, []);
+
+  // ⭐ FETCH COORDINATOR LIVE LOCATION
+  const fetchMyLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setNewEvent({
+          ...newEvent,
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      },
+      () => alert("Please enable location access")
+    );
+  };
+
+  const handleEventSubmit = async () => {
+
+    if (!newEvent.latitude || !newEvent.longitude) {
+      alert("Please fetch your location");
+      return;
+    }
+
+    try {
+      const body = {
+        eventName: newEvent.name,
+        eventDate: newEvent.date,
+        eventVenue: newEvent.venue,
+        description: newEvent.description,
+        latitude: newEvent.latitude,
+        longitude: newEvent.longitude,
+      };
+
+      const res = await fetch(
+        "http://localhost:5000/api/coordinator/event/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.event) {
+        setEvents((prev) => [...prev, data.event]);
+
+        setNewEvent({
+          name: "",
+          date: "",
+          venue: "",
+          description: "",
+          latitude: "",
+          longitude: "",
+        });
+
+        setShowForm(false);
+      }
+    } catch (err) {
+      console.log("Create event error:", err);
+    }
   };
 
   return (
-    <div className="bg-[#06121f]/70 border border-cyan-500/20 p-8 rounded-2xl 
-    backdrop-blur-xl shadow-[0_0_25px_rgba(0,255,255,0.15)]">
-
+    <div
+      className="bg-[#06121f]/70 border border-cyan-500/20 p-8 rounded-2xl 
+      backdrop-blur-xl shadow-[0_0_25px_rgba(0,255,255,0.15)]"
+    >
       {/* Header Row */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-cyan-300">Events Management</h2>
@@ -70,29 +132,33 @@ export default function Events() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-[#0b1b2a]/60 p-5 rounded-xl border border-cyan-500/20"
           >
-            <h3 className="text-xl font-semibold text-cyan-200">{ev.name}</h3>
+            <h3 className="text-xl font-semibold text-cyan-200">
+              {ev.eventName}
+            </h3>
 
             <div className="text-gray-300 text-sm mt-2 flex flex-col gap-1">
               <p className="flex items-center gap-2">
                 <Calendar size={16} className="text-cyan-400" />
-                {ev.date}
+                {ev.eventDate}
               </p>
 
               <p className="flex items-center gap-2">
                 <MapPin size={16} className="text-cyan-400" />
-                {ev.venue}
+                {ev.eventVenue}
               </p>
 
               <p className="flex items-center gap-2 mt-1">
                 <Users size={16} className="text-cyan-400" />
                 <span
                   className={`${
-                    ev.status.includes("Approved")
+                    ev.status === "approved_director"
                       ? "text-green-300"
                       : "text-yellow-300"
                   }`}
                 >
-                  {ev.status}
+                  {ev.status === "approved_director"
+                    ? "Approved"
+                    : "Pending Director Approval"}
                 </span>
               </p>
             </div>
@@ -148,6 +214,32 @@ export default function Events() {
                 }
                 className="w-full p-3 rounded-lg bg-[#06121f] border border-cyan-500/20 text-white outline-none"
               ></textarea>
+
+              {/* ⭐ LOCATION INPUTS */}
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="Latitude"
+                  value={newEvent.latitude}
+                  disabled
+                  className="w-full p-3 rounded-lg bg-[#06121f] border border-cyan-500/20 text-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Longitude"
+                  value={newEvent.longitude}
+                  disabled
+                  className="w-full p-3 rounded-lg bg-[#06121f] border border-cyan-500/20 text-white"
+                />
+              </div>
+
+              <button
+                onClick={fetchMyLocation}
+                className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-300 
+                border border-cyan-500/40 rounded-lg hover:bg-cyan-500/30 transition"
+              >
+                <LocateFixed size={18} /> Fetch My Location
+              </button>
             </div>
 
             {/* Buttons */}
