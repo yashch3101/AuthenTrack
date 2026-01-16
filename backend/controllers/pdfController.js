@@ -7,9 +7,6 @@ exports.generatePDF = async (req, res) => {
   try {
     const { message, approvedList, eventId } = req.body;
 
-    // -----------------------------
-    // 1. VALIDATIONS
-    // -----------------------------
     if (!eventId) {
       return res.json({ success: false, message: "Event ID missing" });
     }
@@ -18,9 +15,6 @@ exports.generatePDF = async (req, res) => {
       return res.json({ success: false, message: "No approved students" });
     }
 
-    // -----------------------------
-    // 2. Fetch Event (to get coordinator ID)
-    // -----------------------------
     const event = await Event.findById(eventId).populate("createdBy");
 
     if (!event) {
@@ -29,24 +23,15 @@ exports.generatePDF = async (req, res) => {
 
     const createdById = event.createdBy?._id || null;
 
-    // -----------------------------
-    // 3. Ensure PDF folder exists
-    // -----------------------------
     const pdfDir = path.join(__dirname, "../public/director_pdfs");
 
     if (!fs.existsSync(pdfDir)) {
       fs.mkdirSync(pdfDir, { recursive: true });
     }
 
-    // -----------------------------
-    // 4. FILE DETAILS
-    // -----------------------------
     const fileName = `Attendance_Report_${Date.now()}.pdf`;
     const filePath = path.join(pdfDir, fileName);
 
-    // -----------------------------
-    // 5. GENERATE PDF
-    // -----------------------------
     const doc = new PDFDocument({ margin: 40 });
     const writeStream = fs.createWriteStream(filePath);
 
@@ -68,18 +53,13 @@ exports.generatePDF = async (req, res) => {
 
     approvedList.forEach((s, i) => {
       doc.fontSize(12).text(
-        `${i + 1}. ${s.fullName} | ${s.course} | Face Match: ${
-          s.matchScore ? (s.matchScore * 100).toFixed(0) : 0
-        }%`
+        `${i + 1}. ${s.fullName} | Branch: ${s.branch} | Year: ${s.year} | Q.ID: ${s.qid}`
       );
       doc.moveDown(0.3);
     });
 
     doc.end();
 
-    // -----------------------------
-    // 6. AFTER PDF WRITE COMPLETES
-    // -----------------------------
     writeStream.on("finish", async () => {
       const fileUrl = `http://localhost:5000/director_pdfs/${fileName}`;
 

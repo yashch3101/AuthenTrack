@@ -82,10 +82,7 @@ exports.submitAttendance = async (req, res) => {
     mlForm.append("live_file", req.file.buffer, "live.jpg");
 
     // Always send empty array if embedding missing
-    mlForm.append(
-      "registered_embedding",
-      JSON.stringify(registration.faceEmbedding || [])
-    );
+    mlForm.append("registered_embedding", JSON.stringify(registration.faceEmbedding));
 
     const mlResponse = await axios.post(
       "http://localhost:8000/verify",
@@ -93,7 +90,7 @@ exports.submitAttendance = async (req, res) => {
       { headers: mlForm.getHeaders() }
     );
 
-    const { match, score, distance: faceDistance } = mlResponse.data;
+    const { match, score_percent, distance } = mlResponse.data;
 
     // CALCULATE DISTANCE
     const dist = calculateDistance(
@@ -114,8 +111,8 @@ exports.submitAttendance = async (req, res) => {
       registeredPhotoUrl: registration.photoUrl,
 
       faceMatched: match,
-      matchScore: score,
-      distance: faceDistance,
+      matchScore: score_percent,
+      distance: distance,
 
       studentLat: lat,
       studentLng: lng,
@@ -131,8 +128,13 @@ exports.submitAttendance = async (req, res) => {
       year: registration.year,
       qid: registration.qid,
 
-      status: match && locationMatched ? "verified" : "pending",
-      verifiedAt: match && locationMatched ? new Date() : null,
+      embedding: registration.faceEmbedding,
+
+      // status: match && locationMatched ? "verified" : "pending",
+      // verifiedAt: match && locationMatched ? new Date() : null,
+
+      status: "pending",
+      verifiedAt: null,
     });
 
     return res.json({
@@ -169,6 +171,7 @@ exports.getRegistrationDetails = async (req, res) => {
       branch: registration.branch,
       year: registration.year,
       qid: registration.qid,
+      embedding: registration.faceEmbedding
     });
   } catch (err) {
     console.log(err);

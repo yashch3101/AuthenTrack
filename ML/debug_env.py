@@ -1,4 +1,3 @@
-# debug_env.py
 import os
 from dotenv import load_dotenv, find_dotenv
 

@@ -18,9 +18,7 @@ def _write_bytes_to_tempfile(b):
     return tf.name
 
 def generate_embedding_from_path(image_path, enforce_detection=True):
-    """
-    Return embedding list (or None on failure)
-    """
+   
     try:
         reps = DeepFace.represent(img_path=image_path, model_name=MODEL_NAME, enforce_detection=enforce_detection)
         if isinstance(reps, list) and len(reps) > 0:
@@ -32,7 +30,7 @@ def generate_embedding_from_path(image_path, enforce_detection=True):
         vec = model.predict(img)[0].tolist()
         return vec
     except Exception as e:
-        # face not detected or model error
+        
         print("generate_embedding_from_path error:", e)
         return None
 
@@ -41,31 +39,35 @@ def generate_embedding_from_bytes(image_bytes, enforce_detection=True):
     return generate_embedding_from_path(path, enforce_detection=enforce_detection)
 
 def compare_embeddings(emb1, emb2):
-    """
-    Returns euclidean distance (float) or None if invalid
-    """
     if emb1 is None or emb2 is None:
         return None
-    a = np.array(emb1)
-    b = np.array(emb2)
-    if a.shape != b.shape:
-        try:
-            b = b.reshape(a.shape)
-        except Exception:
-            return None
-    dist = float(np.linalg.norm(a - b))
-    return dist
+    try:
+        emb1 = np.array(emb1)
+        emb2 = np.array(emb2)
+        dist = float(np.linalg.norm(emb1 - emb2))
+        return dist
+    except Exception:
+        return None
 
-def verify_embeddings(registered_embedding, live_embedding, threshold=DEFAULT_THRESHOLD):
-    """
-    Returns dict: { match: bool, distance: float, score: float }
-    score is intuitive 0..1 where higher is better (1 - normalized distance)
-    """
-    dist = compare_embeddings(registered_embedding, live_embedding)
-    if dist is None:
-        return {"match": False, "distance": None, "score": 0.0}
+def _ensure_np(x):
+    return np.array(x, dtype=np.float32)
 
-    # simple score: 1 - dist, clipped
-    score = max(0.0, 1.0 - dist)
-    match = dist <= threshold
-    return {"match": bool(match), "distance": dist, "score": float(round(score, 4))}
+def l2_normalize(v):
+    v = np.array(v, dtype=np.float32)
+    norm = np.linalg.norm(v)
+    return v if norm == 0 else v / norm
+
+def cosine_similarity(a, b):
+    a = l2_normalize(a)
+    b = l2_normalize(b)
+    return float(np.dot(a, b))
+
+def verify_embeddings(registered_embedding, live_embedding, threshold=0.85):
+    sim = cosine_similarity(registered_embedding, live_embedding)
+    score_percent = round(sim * 100, 2)
+
+    return {
+        "match": score_percent >= threshold * 100,
+        "similarity": round(sim, 4),
+        "score_percent": score_percent
+    }

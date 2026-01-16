@@ -2,6 +2,8 @@ const EventRegistration = require("../models/EventRegistration");
 const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const Event = require("../models/Event");
+const axios = require("axios");
+const FormData = require("form-data");
 
 exports.registerForEvent = async (req, res) => {
   try {
@@ -38,6 +40,18 @@ exports.registerForEvent = async (req, res) => {
 
     const uploadedImage = await uploadToCloudinary();
 
+    const mlForm = new FormData();
+    mlForm.append("file", req.file.buffer, "photo.jpg");
+    mlForm.append("user_id", req.user.id.toString());
+
+    const mlRes = await axios.post(
+      "http://localhost:8000/embedding/register",
+      mlForm,
+      { headers: mlForm.getHeaders() }
+    );
+
+    const embedding = mlRes.data.embedding || [];
+
     const newRegistration = await EventRegistration.create({
       studentId: req.user.id,
       eventId,
@@ -49,6 +63,7 @@ exports.registerForEvent = async (req, res) => {
       qid,
       phone,
       photoUrl: uploadedImage.secure_url,
+      faceEmbedding: embedding
     });
 
     return res.json({

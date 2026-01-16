@@ -1,64 +1,96 @@
-import os
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+import json
+import tempfile
+import numpy as np
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
-from .cloudinary_utils import upload_file
-from .ml_utils import generate_embedding_from_bytes, verify_embeddings
+from deepface import DeepFace
 
-load_dotenv()
+app = FastAPI(title="Face Verify API")
 
-app = FastAPI(title="Face-ML Service")
+def get_embedding(upload: UploadFile):
+    contents = upload.file.read()
 
-REGISTERED_FOLDER = os.getenv("CLOUDINARY_REGISTERED_FOLDER", "smart_attendance/registered_photos")
-LIVE_FOLDER = os.getenv("CLOUDINARY_LIVE_FOLDER", "smart_attendance/live_photos")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+        tmp.write(contents)
+        tmp_path = tmp.name
+
+    reps = DeepFace.represent(
+        img_path=tmp_path,
+        model_name="Facenet512",
+        enforce_detection=True
+    )
+
+    # Accept multiple DeepFace formats
+    emb = (
+        reps[0].get("embedding") or
+        reps[0].get("embeddings") or
+        reps[0].get("representation")
+    )
+
+    if emb is None:
+        raise ValueError("DeepFace embedding not found")
+
+    # Ensure pure python list
+    if isinstance(emb, list) and len(emb) == 512:
+        return emb
+
+    # Clean numpy floats → python floats
+    clean = [float(x) for x in list(emb)[:512]]
+
+    return clean
+
+def cosine_similarity(a, b):
+    a = np.array(a)
+    b = np.array(b)
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 
 @app.post("/embedding/register")
-async def register_embedding(file: UploadFile = File(...)):
-    
-    contents = await file.read()
-    
-    # generate embedding
-    emb = generate_embedding_from_bytes(contents, enforce_detection=True)
-    if emb is None:
-        raise HTTPException(status_code=400, detail="No face detected in registration photo")
-
-    # cloudinary 
-    upload_res = upload_file(contents, folder=REGISTERED_FOLDER)
-    return JSONResponse({"photo_url": upload_res.get("url"), "public_id": upload_res.get("public_id"), "embedding": emb})
+async def register_face(file: UploadFile = File(...)):
+    try:
+        emb = get_embedding(file)
+        return {
+            "embedding": emb,
+            "length": len(emb)
+        }
+    except Exception as e:
+        raise HTTPException(400, str(e))
 
 @app.post("/verify")
 async def verify_face(
     live_file: UploadFile = File(...),
-    registered_embedding: str = Form(None)
+    registered_embedding: str = Form(...)
 ):
-    import json
-    live_bytes = await live_file.read()
-    
-       # upload live photo first
-    upload_res = upload_file(live_bytes, folder=LIVE_FOLDER)
-    live_url = upload_res.get("url")
-    live_pid = upload_res.get("public_id")
-    
-    #live embedding
-    live_emb = generate_embedding_from_bytes(live_bytes, enforce_detection=True)
-    if live_emb is None:
-        return JSONResponse({"match": False, "reason": "no_face_detected_live", "live_photo_url": live_url}, status_code=200)
-    
-        #registered embedding
-    if not registered_embedding:
-        return JSONResponse({"error": "registered_embedding required (stringified JSON array)"}, status_code=400)
+    print("RAW EMBEDDING =>", registered_embedding[:100])
+    print("RAW LENGTH =>", len(registered_embedding))
+
+    cleaned = registered_embedding.strip().strip('"').strip("'")
+
+    print("CLEANED LENGTH =>", len(cleaned))
 
     try:
-        registered_emb = json.loads(registered_embedding)
-        if not isinstance(registered_emb, list):
-            raise ValueError("registered_embedding should be a list")
-    except Exception:
-        try:
-            registered_emb = [float(x) for x in registered_embedding.split(",")]
-        except Exception:
-            return JSONResponse({"error": "cannot parse registered_embedding"}, status_code=400)
-        
-        #compare
-    result = verify_embeddings(registered_emb, live_emb)
-    result.update({"live_photo_url": live_url, "live_public_id": live_pid})
-    return JSONResponse(result)
+        reg_emb = json.loads(cleaned)
+        if not isinstance(reg_emb, list) or len(reg_emb) < 10:
+            raise ValueError("Parsed embedding invalid")
+    except Exception as e:
+        raise HTTPException(400, f"Invalid registered_embedding: {str(e)}")
+
+    reg_emb = np.array(reg_emb, dtype=np.float32)
+
+    try:
+        live_emb = get_embedding(live_file)
+        live_emb = np.array(live_emb, dtype=np.float32)
+    except Exception as e:
+        return {"match": False, "reason": "no_face_detected"}
+
+    reg_norm = reg_emb / np.linalg.norm(reg_emb)
+    live_norm = live_emb / np.linalg.norm(live_emb)
+
+    sim = float(np.dot(reg_norm, live_norm))
+    score = round(sim * 100, 2)
+
+    return {
+        "match": score >= 50,
+        "similarity": sim,
+        "score_percent": score,
+        "distance": round(1 - sim, 3)
+    }

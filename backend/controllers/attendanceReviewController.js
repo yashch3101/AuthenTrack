@@ -1,6 +1,5 @@
 const Attendance = require("../models/Attendance");
 
-// GET Pending Students
 exports.getPending = async (req, res) => {
   try {
     const pending = await Attendance.find({
@@ -15,22 +14,20 @@ exports.getPending = async (req, res) => {
   }
 };
 
-// Approve Student
 exports.approve = async (req, res) => {
   try {
     await Attendance.findByIdAndUpdate(req.params.id, {
-      status: "approved",
+      status: "verified",
       verifiedAt: new Date()
     });
 
-    res.json({ message: "Approved" });
+    res.json({ message: "Verified" });
 
   } catch (err) {
     res.status(500).json({ message: "Server Error", err });
   }
 };
 
-// Reject Student
 exports.reject = async (req, res) => {
   try {
     await Attendance.findByIdAndUpdate(req.params.id, {
@@ -44,12 +41,11 @@ exports.reject = async (req, res) => {
   }
 };
 
-// Get Verified Students
 exports.getVerified = async (req, res) => {
   try {
     const verified = await Attendance.find({
       coordinatorId: req.user.id,
-      status: "approved"
+      status: "verified"
     });
 
     res.json({ verified });
@@ -59,17 +55,16 @@ exports.getVerified = async (req, res) => {
   }
 };
 
-// PDF Generator
 exports.generatePDF = async (req, res) => {
   try {
-    const approved = await Attendance.find({
+    const verified = await Attendance.find({
       coordinatorId: req.user.id,
-      status: "approved"
+      status: "verified"
     });
 
     res.json({
       message: "PDF Generated & Sent to Director",
-      approved
+      verified
     });
 
   } catch (err) {

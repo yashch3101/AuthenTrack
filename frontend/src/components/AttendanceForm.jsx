@@ -95,12 +95,13 @@ export default function AttendanceForm() {
   const [qid, setQid] = useState("");
 
   const [eventData, setEventData] = useState(null);
+  const [registeredEmbedding, setRegisteredEmbedding] = useState(null);
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
   }, []);
 
-  // ⭐ FETCH LATEST EVENT
+  // FETCH LATEST EVENT
   useEffect(() => {
     const token = localStorage.getItem("studentToken");
 
@@ -112,7 +113,7 @@ export default function AttendanceForm() {
       .catch(() => alert("No active event found"));
   }, []);
 
-  // ⭐ FETCH REGISTRATION DETAILS
+  // FETCH REGISTRATION DETAILS
   useEffect(() => {
     if (!eventData?._id) return;
 
@@ -133,17 +134,18 @@ export default function AttendanceForm() {
         setBranch(data.branch);
         setYear(data.year);
         setQid(data.qid);
+        setRegisteredEmbedding(data.embedding || []);
       });
   }, [eventData]);
 
-  // ⭐ GPS AUTO
+  // GPS AUTO
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((p) => {
       setGps(`${p.coords.latitude.toFixed(4)}°, ${p.coords.longitude.toFixed(4)}°`);
     });
   }, []);
 
-  // ⭐ CAPTURE FACE
+  // CAPTURE FACE
   const captureFace = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     const video = document.createElement("video");
@@ -190,6 +192,7 @@ export default function AttendanceForm() {
       formData.append("eventId", eventData._id);
       formData.append("studentLat", studentLat);
       formData.append("studentLng", studentLng);
+      formData.append("registered_embedding", JSON.stringify(registeredEmbedding));
 
       const res = await fetch("http://localhost:5000/api/student/attendance/submit", {
         method: "POST",
@@ -200,7 +203,7 @@ export default function AttendanceForm() {
       const data = await res.json();
 
       setFaceStatus(data.attendance.faceMatched ? "verified" : "failed");
-      setMatchScore(data.attendance.matchScore);
+      setMatchScore(data.attendance.matchScore); 
       setFaceDistance(data.attendance.distance);
 
       setLocationStatus(data.attendance.locationMatched ? "verified" : "failed");
@@ -327,7 +330,7 @@ export default function AttendanceForm() {
 
               {matchScore !== null && (
                 <p className="text-xs text-cyan-300 mt-1">
-                  Match Score: {(matchScore * 100).toFixed(2)}%
+                  Match Score: {matchScore.toFixed(2)}%
                 </p>
               )}
 
