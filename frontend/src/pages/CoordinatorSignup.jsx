@@ -50,7 +50,7 @@ export default function CoordinatorSignup() {
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/coordinator/auth/register",
+        "https://authentrack-backend.onrender.com/api/coordinator/auth/register",
         {
           method: "POST",
           body: fd,

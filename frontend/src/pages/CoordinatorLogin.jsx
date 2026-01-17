@@ -27,7 +27,7 @@ export default function CoordinatorLogin() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/coordinator/auth/login", {
+      const res = await fetch("https://authentrack-backend.onrender.com/api/coordinator/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

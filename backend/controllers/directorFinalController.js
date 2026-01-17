@@ -80,7 +80,7 @@ exports.finalApprove = async (req, res) => {
 
         fs.writeFileSync(filePath, finalPdfBytes);
 
-        const finalPdfUrl = `http://localhost:5000/final_signed_pdfs/${fileName}`;
+        const finalPdfUrl = `https://authentrack-backend.onrender.com/final_signed_pdfs/${fileName}`;
 
         // Update event
         await Event.findByIdAndUpdate(eventId, {

@@ -27,7 +27,7 @@ export default function AcademicHeadLogin() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/director/auth/login", {
+      const res = await fetch("https://authentrack-backend.onrender.com/api/director/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -22,7 +22,7 @@ export default function Events() {
     async function loadEvents() {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/coordinator/event/my-events",
+          "https://authentrack-backend.onrender.com/api/coordinator/event/my-events",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,7 +72,7 @@ export default function Events() {
       };
 
       const res = await fetch(
-        "http://localhost:5000/api/coordinator/event/create",
+        "https://authentrack-backend.onrender.com/api/coordinator/event/create",
         {
           method: "POST",
           headers: {

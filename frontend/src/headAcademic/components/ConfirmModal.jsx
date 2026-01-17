@@ -23,7 +23,7 @@ export default function ConfirmModal({
       }
 
       const res = await fetch(
-        "http://localhost:5000/api/director/approval/final-approve",
+        "https://authentrack-backend.onrender.com/api/director/approval/final-approve",
         {
           method: "POST",
           headers: {

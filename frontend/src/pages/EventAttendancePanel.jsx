@@ -1,21 +1,8 @@
-// src/pages/EventAttendancePanel.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import backBtn from "../assets/back-button.png";
 
-/**
- * EventAttendancePanel — Interactive version
- * Features:
- *  - Real-time search by name
- *  - Filter: All / Inside / Review
- *  - Sort: Name A→Z | Score High→Low | Status (Inside first)
- *  - Dynamic row count
- *  - Selected row highlights + right-side dynamic quick view
- *  - Blob background + back button (same as login)
- */
-
 export default function EventAttendancePanel() {
-  // dummy data (kept client-side)
   const initialStudents = [
     { id: 1, name: "Q-ID", course: "CSE / 2nd", lecture: "10:00 AM", faceMatch: true, status: "Inside", image: "https://i.pravatar.cc/150?img=11", score: 92 },
     { id: 2, name: "O-ID", course: "CSE / 2nd", lecture: "10:00 AM", faceMatch: true, status: "Inside", image: "https://i.pravatar.cc/150?img=12", score: 95 },
@@ -28,12 +15,10 @@ export default function EventAttendancePanel() {
   const [students] = useState(initialStudents);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  // UI controls
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("all"); // all | inside | review
-  const [sortBy, setSortBy] = useState("name"); // name | score | status
+  const [filter, setFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
 
-  // stats (dummy)
   const stats = [
     { label: "Approved Students", value: 198 },
     { label: "Total Event Hours", value: "8 hrs" },
@@ -41,23 +26,18 @@ export default function EventAttendancePanel() {
     { label: "Location Failures", value: 3 },
   ];
 
-  // set default selected student once on mount
   useEffect(() => {
     if (students.length > 0) setSelectedStudent(students[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // filtered + searched + sorted list (memoized)
   const visibleStudents = useMemo(() => {
     let list = [...students];
 
-    // search by name (case-insensitive)
     if (query.trim() !== "") {
       const q = query.trim().toLowerCase();
       list = list.filter((s) => s.name.toLowerCase().includes(q));
     }
 
-    // filter
     if (filter === "inside") {
       list = list.filter((s) => s.status.toLowerCase() === "inside");
     } else if (filter === "review") {
@@ -68,27 +48,21 @@ export default function EventAttendancePanel() {
     if (sortBy === "name") {
       list.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === "score") {
-      list.sort((a, b) => b.score - a.score); // desc
+      list.sort((a, b) => b.score - a.score);
     } else if (sortBy === "status") {
-      // inside first then review (stable)
       const order = { inside: 0, review: 1 };
       list.sort((a, b) => (order[a.status.toLowerCase()] ?? 2) - (order[b.status.toLowerCase()] ?? 2));
     }
 
-    // ensure selectedStudent remains selected if still visible
     if (selectedStudent && !list.find((s) => s.id === selectedStudent.id)) {
-      // if selected is filtered out, select first visible
       list.length > 0 && setSelectedStudent(list[0]);
     }
 
     return list;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [students, query, filter, sortBy]);
 
-  // row click handler
   const onRowClick = (stu) => {
     setSelectedStudent(stu);
-    // optional: scroll right panel into view or show animation (handled by framer-motion)
   };
 
   return (
@@ -336,5 +310,3 @@ export default function EventAttendancePanel() {
     </div>
   );
 }
-
-

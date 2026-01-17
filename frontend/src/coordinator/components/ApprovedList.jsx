@@ -10,7 +10,7 @@ export default function ApprovedList({ onClose, onSubmit }) {
     async function loadApproved() {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/coordinator/review/verified",
+          "https://authentrack-backend.onrender.com/api/coordinator/review/verified",
           {
             method: "GET",
             headers: {
@@ -34,7 +34,7 @@ export default function ApprovedList({ onClose, onSubmit }) {
   const removeApproved = async (id) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/coordinator/review/reject/${id}`,
+        `https://authentrack-backend.onrender.com/api/coordinator/review/reject/${id}`,
         {
           method: "PUT",
           headers: {

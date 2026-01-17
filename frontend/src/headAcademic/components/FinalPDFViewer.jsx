@@ -8,8 +8,8 @@ export default function FinalPDFViewer({ pdfUrl }) {
     ? pdfUrl.startsWith("http")
       ? pdfUrl
       : pdfUrl.includes("director_pdfs")
-        ? `http://localhost:5000/${pdfUrl}`
-        : `http://localhost:5000/pdf/${pdfUrl}`
+        ? `https://authentrack-backend.onrender.com/${pdfUrl}`
+        : `https://authentrack-backend.onrender.com/pdf/${pdfUrl}`
     : null;
 
   return (

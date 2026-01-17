@@ -16,7 +16,7 @@ export default function PdfGenerator({ approved = [], eventId }) {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/coordinator/pdf/generate",
+        "https://authentrack-backend.onrender.com/api/coordinator/pdf/generate",
         {
           method: "POST",
           headers: {
