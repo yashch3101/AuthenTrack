@@ -61,7 +61,7 @@ exports.generatePDF = async (req, res) => {
     doc.end();
 
     writeStream.on("finish", async () => {
-      const fileUrl = `https://authentrack-backend.onrender.com/director_pdfs/${fileName}`;
+      const fileUrl = `http://localhost:5000/director_pdfs/${fileName}`;
 
       // UPDATE EVENT
       await Event.findByIdAndUpdate(eventId, {

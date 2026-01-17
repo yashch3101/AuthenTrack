@@ -49,11 +49,12 @@ export default function VerifyOTP() {
       setSuccess(true);
 
       setTimeout(() => {
+        // ⭐ IMPORTANT: send success state to Home page
         navigate("/", {
           replace: true,
           state: { enrolled: true }
         });
-      }, 600);
+      }, 600); // Fast redirect (only 0.6 sec)
     } else {
       alert("Invalid OTP");
     }
@@ -156,3 +157,5 @@ export default function VerifyOTP() {
     </div>
   );
 }
+
+

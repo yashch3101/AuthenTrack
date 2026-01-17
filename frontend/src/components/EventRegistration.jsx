@@ -75,7 +75,7 @@ export default function EventRegistration() {
   useEffect(() => {
     const token = localStorage.getItem("studentToken");
     axios
-      .get("https://authentrack-backend.onrender.com/api/student/event/latest", {
+      .get("http://localhost:5000/api/student/event/latest", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -94,7 +94,7 @@ export default function EventRegistration() {
 
     axios
       .get(
-        `https://authentrack-backend.onrender.com/api/student/event/check?eventId=${eventData._id}`,
+        `http://localhost:5000/api/student/event/check?eventId=${eventData._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -143,7 +143,7 @@ export default function EventRegistration() {
       formData.append("eventId", eventData._id);
 
       await axios.post(
-        "https://authentrack-backend.onrender.com/api/student/event/register",
+        "http://localhost:5000/api/student/event/register",
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

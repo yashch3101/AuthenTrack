@@ -122,7 +122,7 @@ export default function AttendanceForm() {
   // FETCH LATEST EVENT
   useEffect(() => {
     const token = localStorage.getItem("studentToken");
-    fetch("https://authentrack-backend.onrender.com/api/student/event/latest", {
+    fetch("http://localhost:5000/api/student/event/latest", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -134,7 +134,7 @@ export default function AttendanceForm() {
   useEffect(() => {
     if (!eventData?._id) return;
     fetch(
-      `https://authentrack-backend.onrender.com/api/student/attendance/registration-details?eventId=${eventData._id}`,
+      `http://localhost:5000/api/student/attendance/registration-details?eventId=${eventData._id}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("studentToken")}`
@@ -210,7 +210,7 @@ export default function AttendanceForm() {
       formData.append("studentLng", studentLng);
       formData.append("registered_embedding", JSON.stringify(registeredEmbedding));
 
-      const res = await fetch("https://authentrack-backend.onrender.com/api/student/attendance/submit", {
+      const res = await fetch("http://localhost:5000/api/student/attendance/submit", {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("studentToken")}` },
         body: formData

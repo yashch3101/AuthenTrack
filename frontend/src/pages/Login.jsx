@@ -17,7 +17,7 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const res = await axios.post(
-        "https://authentrack-backend.onrender.com/api/student/auth/login",
+        "http://localhost:5000/api/student/auth/login",
         { email, password }
       );
 

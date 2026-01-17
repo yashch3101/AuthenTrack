@@ -14,7 +14,7 @@ export default function EventAttendancePanel({ onStudentDetected }) {
   const loadLiveAttendance = async () => {
     try {
       const res = await fetch(
-        "https://authentrack-backend.onrender.com/api/coordinator/attendance/live",
+        "http://localhost:5000/api/coordinator/attendance/live",
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -52,7 +52,7 @@ export default function EventAttendancePanel({ onStudentDetected }) {
   const handleMarkReviewed = async (id) => {
     try {
       const res = await fetch(
-        `https://authentrack-backend.onrender.com/api/coordinator/attendance/review/${id}`,
+        `http://localhost:5000/api/coordinator/attendance/review/${id}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -87,7 +87,7 @@ export default function EventAttendancePanel({ onStudentDetected }) {
 
   const handleExport = async () => {
     try {
-      await fetch("https://authentrack-backend.onrender.com/api/coordinator/attendance/export", {
+      await fetch("http://localhost:5000/api/coordinator/attendance/export", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -101,7 +101,7 @@ export default function EventAttendancePanel({ onStudentDetected }) {
   const detectNewStudent = async () => {
     try {
       const res = await fetch(
-        "https://authentrack-backend.onrender.com/api/coordinator/attendance/new",
+        "http://localhost:5000/api/coordinator/attendance/new",
         {
           method: "POST",
           headers: {

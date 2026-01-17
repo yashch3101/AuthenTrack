@@ -61,6 +61,7 @@ export default function EventAttendancePanel() {
     return list;
   }, [students, query, filter, sortBy]);
 
+  // row click handler
   const onRowClick = (stu) => {
     setSelectedStudent(stu);
   };
@@ -310,3 +311,5 @@ export default function EventAttendancePanel() {
     </div>
   );
 }
+
+

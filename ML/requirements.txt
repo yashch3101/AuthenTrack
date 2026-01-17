@@ -2,9 +2,7 @@ fastapi==0.95.2
 uvicorn[standard]==0.22.0
 deepface==0.0.79
 opencv-python-headless==4.7.0.72
-numpy==1.23.5
+numpy==1.26.4
 cloudinary==1.44.1
 python-dotenv==1.0.0
 pillow==10.1.0
-tensorflow==2.12.0
-python-multipart==0.0.9

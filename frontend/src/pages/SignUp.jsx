@@ -22,7 +22,7 @@ export default function SignUp() {
   const handleSignup = async () => {
     try {
       const res = await axios.post(
-        "https://authentrack-backend.onrender.com/api/student/auth/signup",
+        "http://localhost:5000/api/student/auth/signup",
         {
           fullName: formData["Full Name"],
           email: formData["Email Address"],

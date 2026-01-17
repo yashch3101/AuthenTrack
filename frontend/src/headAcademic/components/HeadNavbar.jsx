@@ -14,7 +14,7 @@ export default function HeadNavbar() {
       const token = localStorage.getItem("directorToken");
       if (!token) return;
 
-      const res = await fetch("https://authentrack-backend.onrender.com/api/director/me", {
+      const res = await fetch("http://localhost:5000/api/director/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

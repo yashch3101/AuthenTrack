@@ -85,7 +85,7 @@ exports.submitAttendance = async (req, res) => {
     mlForm.append("registered_embedding", JSON.stringify(registration.faceEmbedding));
 
     const mlResponse = await axios.post(
-      "https://authentrack-ml.onrender.com/verify",
+      "http://localhost:8000/verify",
       mlForm,
       { headers: mlForm.getHeaders() }
     );

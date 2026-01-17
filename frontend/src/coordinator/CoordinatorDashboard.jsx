@@ -26,7 +26,7 @@ export default function CoordinatorDashboard() {
   const loadPending = async () => {
     try {
       const res = await fetch(
-        "https://authentrack-backend.onrender.com/api/coordinator/review/pending",
+        "http://localhost:5000/api/coordinator/review/pending",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -45,7 +45,7 @@ export default function CoordinatorDashboard() {
   const loadApproved = async () => {
     try {
       const res = await fetch(
-        "https://authentrack-backend.onrender.com/api/coordinator/review/verified",
+        "http://localhost:5000/api/coordinator/review/verified",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -69,7 +69,7 @@ export default function CoordinatorDashboard() {
   useEffect(() => {
     async function fetchEvent() {
       try {
-        const res = await fetch("https://authentrack-backend.onrender.com/api/coordinator/event/latest");
+        const res = await fetch("http://localhost:5000/api/coordinator/event/latest");
         const data = await res.json();
         if (data.success) {
           setEventId(data.event._id);
@@ -87,7 +87,7 @@ export default function CoordinatorDashboard() {
   const handleApprove = async (student) => {
     try {
       await fetch(
-        `https://authentrack-backend.onrender.com/api/coordinator/review/approve/${student._id}`,
+        `http://localhost:5000/api/coordinator/review/approve/${student._id}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -107,7 +107,7 @@ export default function CoordinatorDashboard() {
   const handleReject = async (student) => {
     try {
       await fetch(
-        `https://authentrack-backend.onrender.com/api/coordinator/review/reject/${student._id}`,
+        `http://localhost:5000/api/coordinator/review/reject/${student._id}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },

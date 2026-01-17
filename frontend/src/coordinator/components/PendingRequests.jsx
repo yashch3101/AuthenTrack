@@ -11,7 +11,7 @@ export default function PendingRequests({ data = [], refresh }) {
       setLoading(student._id);
 
       const res = await fetch(
-        `https://authentrack-backend.onrender.com/api/coordinator/review/approve/${student._id}`,
+        `http://localhost:5000/api/coordinator/review/approve/${student._id}`,
         {
           method: "PUT",
           headers: {
@@ -36,7 +36,7 @@ export default function PendingRequests({ data = [], refresh }) {
       setLoading(student._id);
 
       const res = await fetch(
-        `https://authentrack-backend.onrender.com/api/coordinator/review/reject/${student._id}`,
+        `http://localhost:5000/api/coordinator/review/reject/${student._id}`,
         {
           method: "PUT",
           headers: {

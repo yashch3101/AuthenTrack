@@ -31,6 +31,7 @@ export default function AcademicHeadDashboard() {
 
     useEffect(() => {
     async function init() {
+        // 1. URL me ID hai?
         if (routeEventId) {
             setEventId(routeEventId);
             localStorage.setItem("currentEventId", routeEventId);
@@ -38,13 +39,14 @@ export default function AcademicHeadDashboard() {
             return;
         }
 
+        // 2. Agar localStorage me ID hai → confirm karo ke event exist bhi karta hai
         const saved = localStorage.getItem("currentEventId");
 
         if (saved) {
             const token = localStorage.getItem("directorToken");
 
             const res = await fetch(
-                `https://authentrack-backend.onrender.com/api/director/event/${saved}`,
+                `http://localhost:5000/api/director/event/${saved}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -74,7 +76,7 @@ export default function AcademicHeadDashboard() {
         const token = localStorage.getItem("directorToken");
 
         const res = await fetch(
-            "https://authentrack-backend.onrender.com/api/director/event/latest-event",
+            "http://localhost:5000/api/director/event/latest-event",
             {
                 headers: { Authorization: `Bearer ${token}` }
             }
@@ -109,7 +111,7 @@ export default function AcademicHeadDashboard() {
             const token = localStorage.getItem("directorToken");
 
             const res = await fetch(
-                `https://authentrack-backend.onrender.com/api/director/event/${eventId}`,
+                `http://localhost:5000/api/director/event/${eventId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
