@@ -1,93 +1,143 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import AOS from "aos";
-import "aos/dist/aos.css";
 import { useNavigate } from "react-router-dom";
-
 import neonEarth from "../assets/edu.png";
 
-export default function Hero() {
-  const navigate = useNavigate();
+const container = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08
+    }
+  }
+};
 
+const word = {
+  hidden: { y: 120, opacity: 0, filter: "blur(10px)" },
+  visible: {
+    y: 0,
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: {
+      type: "spring",
+      stiffness: 80,
+      damping: 14,
+      mass: 0.8
+    }
+  }
+};
+
+const fadeUp = {
+  hidden: { y: 60, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 60,
+      damping: 15
+    }
+  }
+};
+
+export default function Home() {
+  const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem("studentToken");
 
-  useEffect(() => {
-    AOS.init({ duration: 800, once: true });
-  }, []);
+  const line1 = "Smart Event".split(" ");
+  const line2 = "Attendance".split(" ");
+  const line3 = "System".split(" ");
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
+      variants={container}
+      initial="hidden"
+      animate="visible"
       className="w-full pb-24 flex flex-col md:flex-row items-center justify-between gap-16 md:gap-24"
     >
-      {/* LEFT CONTENT */}
-      <div className="max-w-xl md:pt-10" data-aos="fade-right">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
-          <span className="text-white">Smart Event</span>
-          <br />
-          <span className="text-[#14F1F9]">Attendance System</span>
+      {/* LEFT */}
+      <div className="max-w-xl md:pt-10">
+
+        {/* HEADLINE */}
+        <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight font-['Aclonica'] tracking-wide">
+
+          <motion.div className="flex gap-4 overflow-hidden">
+            {line1.map((w, i) => (
+              <motion.span key={i} variants={word} className="text-white inline-block">
+                {w}
+              </motion.span>
+            ))}
+          </motion.div>
+
+          <motion.div className="flex gap-4 text-[#14F1F9] overflow-hidden drop-shadow-[0_0_18px_rgba(20,241,249,0.8)]">
+            {line2.map((w, i) => (
+              <motion.span key={i} variants={word} className="inline-block">
+                {w}
+              </motion.span>
+            ))}
+          </motion.div>
+
+          <motion.div className="flex gap-4 text-[#14F1F9] overflow-hidden">
+            {line3.map((w, i) => (
+              <motion.span key={i} variants={word} className="inline-block">
+                {w}
+              </motion.span>
+            ))}
+          </motion.div>
+
         </h1>
 
-        <p className="text-gray-400 mt-5 text-lg leading-relaxed">
+        {/* DESCRIPTION */}
+        <motion.p
+          variants={fadeUp}
+          className="text-gray-400 mt-6 text-lg leading-relaxed"
+        >
           AI-powered face verification & location-based secure attendance
-        </p>
+        </motion.p>
 
-        {/* BULLET LIST */}
-        <ul className="mt-7 space-y-3 text-gray-300">
-          <li className="flex items-center gap-3">
-            <span className="text-[#14F1F9] text-xl">✔</span>
-            Face Recognition
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="text-[#14F1F9] text-xl">✔</span>
-            Location based Approval
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="text-[#14F1F9] text-xl">✔</span>
-            Director Digital Signing
-          </li>
-        </ul>
+        {/* BULLETS */}
+        <motion.ul variants={container} className="mt-7 space-y-3 text-gray-300">
+          {["Face Recognition", "Location based Approval", "Director Digital Signing"].map((t, i) => (
+            <motion.li key={i} variants={fadeUp} className="flex items-center gap-3">
+              <span className="text-[#14F1F9] text-xl">✔</span> {t}
+            </motion.li>
+          ))}
+        </motion.ul>
 
         {/* BUTTONS */}
-        <div className="mt-10 flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
+        <motion.div variants={fadeUp} className="mt-10 flex gap-4">
+          <button
             className="px-6 py-3 rounded-lg font-semibold bg-[#14F1F9] text-black hover:opacity-90 transition"
             onClick={() => navigate("/register")}
           >
             Get Started
-          </motion.button>
+          </button>
 
           {!isLoggedIn && (
-            <motion.button
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               className="px-6 py-3 rounded-lg font-semibold border border-[#14F1F9] text-[#14F1F9] hover:bg-[#14F1F9] hover:text-black transition"
               onClick={() => navigate("/login")}
             >
               Login
-            </motion.button>
+            </button>
           )}
-        </div>
+        </motion.div>
       </div>
 
-      {/* RIGHT IMAGE */}
+      {/* IMAGE */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.9 }}
-        data-aos="fade-left"
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 60, damping: 16 }}
         className="flex justify-center"
       >
         <img
           src={neonEarth}
-          alt="Hero Image"
-          className="w-[420px] md:w-[550px] lg:w-[600px] object-contain"
+          alt="Hero"
+          className="w-[420px] md:w-[550px] lg:w-[550px] object-contain mix-blend-lighten"
         />
       </motion.div>
+
     </motion.div>
   );
 }

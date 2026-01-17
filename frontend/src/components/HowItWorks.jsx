@@ -1,11 +1,38 @@
-import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import { Search, AlertTriangle, Cpu, Send } from "lucide-react";
 
-export default function HowItWorks() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+const container = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
 
+const item = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
+const heading = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.25, 1, 0.5, 1],
+    },
+  },
+};
+
+export default function HowItWorks() {
   const steps = [
     { icon: <Search size={28} />, title: "Monitor platforms" },
     { icon: <AlertTriangle size={28} />, title: "Detect suspicious content" },
@@ -15,59 +42,39 @@ export default function HowItWorks() {
 
   return (
     <section className="relative w-full bg-[#030712] py-24 px-4 md:px-10">
-
+      {/* soft background glow */}
       <div className="absolute inset-0 mx-auto max-w-6xl blur-[90px] opacity-30 bg-cyan-500/20 rounded-3xl"></div>
 
-      <motion.div
-        ref={ref}
-        initial={{ opacity: 0, y: 60 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative max-w-6xl mx-auto"
-      >
-
-        <div className="flex items-center justify-center gap-6 mb-16">
-
-          <motion.div
-            className="h-[2px] w-40 md:w-64 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
-            animate={{
-              opacity: [0.4, 1, 0.4],
-              boxShadow: [
-                "0 0 10px rgba(0,255,255,0.3)",
-                "0 0 30px rgba(0,255,255,0.7)",
-                "0 0 10px rgba(0,255,255,0.3)",
-              ],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
+      <div className="relative max-w-6xl mx-auto">
+        {/* HEADING */}
+        <motion.div
+          variants={heading}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.6 }}
+          className="flex items-center justify-center gap-6 mb-16"
+        >
+          <div className="h-[2px] w-40 md:w-64 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />
 
           <h2 className="text-white text-3xl md:text-4xl font-bold tracking-wide">
             How it <span className="text-cyan-400">works</span>
           </h2>
 
-          <motion.div
-            className="h-[2px] w-40 md:w-64 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
-            animate={{
-              opacity: [0.4, 1, 0.4],
-              boxShadow: [
-                "0 0 10px rgba(0,255,255,0.3)",
-                "0 0 30px rgba(0,255,255,0.7)",
-                "0 0 10px rgba(0,255,255,0.3)",
-              ],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
+          <div className="h-[2px] w-40 md:w-64 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />
+        </motion.div>
 
-        </div>
-
-        {/* STEPS GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        {/* STEPS */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-8"
+        >
           {steps.map((step, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: index * 0.25, duration: 0.6 }}
+              variants={item}
               className="
                 bg-[#0A0F1E] p-6 rounded-2xl border border-[#0d1b2a]
                 shadow-[0_0_15px_rgba(0,255,255,0.12)]
@@ -81,9 +88,8 @@ export default function HowItWorks() {
               <p className="text-white text-sm font-medium">{step.title}</p>
             </motion.div>
           ))}
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </section>
   );
 }
-

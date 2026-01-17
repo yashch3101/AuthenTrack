@@ -4,58 +4,45 @@ import { motion } from "framer-motion";
 export default function GlobalBlob() {
   return (
     <div className="fixed inset-0 z-[0] pointer-events-none overflow-hidden">
+      {[...Array(150)].map((_, i) => {
 
-      {[...Array(90)].map((_, i) => {
-        let size = Math.random() * 3 + 1;
+       const size = Math.random() * 3 + 1.5;
+        const color = [
+          "rgba(0,255,255,1)",
+          "rgba(0,160,255,1)",
+          "rgba(255,0,180,1)",
+        ][Math.floor(Math.random() * 3)];
+
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 100;
+        const endX = startX + (Math.random() * 80 - 40);
+        const endY = startY + (Math.random() * 80 - 40);
+
         return (
           <motion.div
-            key={"blue_" + i}
-            className="absolute rounded-full z-[0]"
+            key={i}
+            className="absolute rounded-full"
+            initial={{
+              x: `${startX}vw`,
+              y: `${startY}vh`,
+              opacity: 0.9,
+            }}
             animate={{
-              opacity: [0.2, 1, 0.2],
-              scale: [1, 1.4, 1],
+              x: `${endX}vw`,
+              y: `${endY}vh`,
             }}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: Math.random() * 25 + 15,
               repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeInOut",
+              repeatType: "mirror",
+              ease: "linear",
             }}
             style={{
               width: size,
               height: size,
-              backgroundColor: "rgba(0,160,255,0.9)",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              filter: "blur(0.7px)",
-            }}
-          />
-        );
-      })}
-
-      {[...Array(60)].map((_, i) => {
-        let size = Math.random() * 4 + 2;
-        return (
-          <motion.div
-            key={"pink_" + i}
-            className="absolute rounded-full z-[0]"
-            animate={{
-              opacity: [0.1, 0.8, 0.1],
-              scale: [1, 1.3, 1],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeInOut",
-            }}
-            style={{
-              width: size,
-              height: size,
-              backgroundColor: "rgba(255, 0, 150, 0.8)",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              filter: "blur(1px)",
+              backgroundColor: color,
+              filter: "blur(1.2px)",
+              boxShadow: `0 0 12px ${color}`,
             }}
           />
         );

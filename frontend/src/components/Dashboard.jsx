@@ -10,13 +10,13 @@ export default function Dashboard() {
     {
       title: "University Dashboard",
       icon: <GraduationCap size={40} />,
-      path: "/dashboard/university", // ⭐ Correct
+      path: "/dashboard/university",
       desc: "Manage exam monitoring, alerts & reports.",
     },
     {
       title: "Student Dashboard",
       icon: <Users size={40} />,
-      path: "/attendance", // ⭐ Correct
+      path: "/attendance",
       desc: "View attendance, alerts, and activity.",
     },
   ];

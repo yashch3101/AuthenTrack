@@ -1,35 +1,51 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, Calendar, MapPin, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import AOS from "aos";
-import "aos/dist/aos.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import backBtn from "../assets/back-button.png";
 
-function LocalBlob() {
+function EventParticles() {
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {[...Array(90)].map((_, i) => {
-        let size = Math.random() * 3 + 1;
+    <div className="fixed inset-0 z-[0] pointer-events-none overflow-hidden">
+      {[...Array(70)].map((_, i) => {
+        const size = Math.random() * 4 + 2;
+
+        const color = [
+          "rgba(0,255,255,1)",   // neon cyan
+          "rgba(0,160,255,1)",   // neon blue
+        ][Math.floor(Math.random() * 2)];
+
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 100;
+        const endX = startX + (Math.random() * 60 - 30);
+        const endY = startY + (Math.random() * 60 - 30);
+
         return (
           <motion.div
-            key={"blue_" + i}
+            key={i}
             className="absolute rounded-full"
-            animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.4, 1] }}
+            initial={{
+              x: `${startX}vw`,
+              y: `${startY}vh`,
+              opacity: 0.8,
+            }}
+            animate={{
+              x: `${endX}vw`,
+              y: `${endY}vh`,
+            }}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: Math.random() * 20 + 15,
               repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeInOut",
+              repeatType: "mirror",
+              ease: "linear",
             }}
             style={{
               width: size,
               height: size,
-              backgroundColor: "rgba(0,160,255,0.9)",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              filter: "blur(0.7px)",
+              backgroundColor: color,
+              filter: "blur(1px)",
+              boxShadow: `0 0 10px ${color}`,
             }}
           />
         );
@@ -57,10 +73,7 @@ export default function EventRegistration() {
 
   // ⭐ FETCH LATEST EVENT AUTOMATICALLY
   useEffect(() => {
-    AOS.init({ duration: 800, once: true });
-
     const token = localStorage.getItem("studentToken");
-
     axios
       .get("http://localhost:5000/api/student/event/latest", {
         headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +87,6 @@ export default function EventRegistration() {
       });
   }, []);
 
-  // ⭐ CHECK IF STUDENT ALREADY REGISTERED FOR THIS EVENT
   useEffect(() => {
     if (!eventData) return;
 
@@ -149,164 +161,109 @@ export default function EventRegistration() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 0.98 }}
+      exit={{ opacity: 0, y: -40, scale: 0.98 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden bg-black"
     >
-      <LocalBlob />
+      {/* 🔥 Moving neon background */}
+      <EventParticles />
 
+      {/* Back */}
       <motion.img
         src={backBtn}
         onClick={() => navigate(-1)}
+        whileHover={{ scale: 1.1 }}
         className="absolute top-6 left-6 w-12 h-12 z-50 cursor-pointer p-2 rounded-full bg-[#0a0f1f]/60"
       />
 
-      {!eventData ? (
-        <p className="text-white text-xl">Loading event...</p>
-      ) : (
-        <motion.div className="relative z-20 w-full max-w-3xl bg-[#07131C] border border-cyan-500/40 rounded-3xl p-8">
-          {/* ⭐ ALREADY REGISTERED MESSAGE */}
-          {alreadyRegistered && (
-            <p className="text-red-400 text-center text-lg font-semibold mb-4">
-              You have already registered for this event.
+      {/* Side glow */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-[520px] w-[160px] bg-gradient-to-b from-transparent via-pink-500/40 to-transparent blur-[50px]" />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 h-[520px] w-[160px] bg-gradient-to-b from-transparent via-cyan-400/40 to-transparent blur-[50px]" />
+
+      {!eventData ? null : (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+          className="relative z-20 w-full max-w-3xl rounded-3xl p-[2px]"
+          style={{
+            background: "linear-gradient(90deg,#ff3ecb,#7b5cff,#00eaff)",
+            boxShadow: "0 0 25px rgba(0,200,255,0.5)",
+          }}
+        >
+          <div className="bg-[#07131C] rounded-3xl p-8">
+            <h1 className="text-4xl font-extrabold text-cyan-300 text-center">
+              {eventData.title || eventData.eventName}
+            </h1>
+
+            <p className="text-gray-400 text-center mb-6">
+              {eventData.tagline || eventData.description}
             </p>
-          )}
 
-          <h1 className="text-4xl font-extrabold text-cyan-300 text-center mb-1">
-            {eventData.title || eventData.eventName}
-          </h1>
-
-          <p className="text-gray-400 text-center mb-8">
-            {eventData.tagline || eventData.description || ""}
-          </p>
-
-          <div className="flex items-center gap-3">
-            <Calendar size={20} className="text-cyan-400" />
-            <span className="text-sm">
-              Date: <b>{eventData.date || eventData.eventDate}</b>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <MapPin size={20} className="text-cyan-400" />
-            <span className="text-sm">
-              Venue: <b>{eventData.venue || eventData.eventVenue}</b>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <CheckCircle size={20} className="text-cyan-400" />
-            <span className="text-sm">
-              Coordinator:{" "}
-              <b>
+            <div className="flex justify-center flex-wrap gap-6 mb-6 text-white text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar size={18} className="text-cyan-400" />
+                {eventData.date || eventData.eventDate}
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin size={18} className="text-cyan-400" />
+                {eventData.venue || eventData.eventVenue}
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle size={18} className="text-cyan-400" />
                 {eventData.coordinatorName || eventData.createdBy?.fullName}
-              </b>
-            </span>
-          </div>
+              </div>
+            </div>
 
-          {/* --- FORM (UNCHANGED UI) --- */}
-          <label
-            htmlFor="photoInput"
-            className="col-span-2 w-full border-2 border-dashed border-cyan-400/40 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer"
-          >
-            {preview ? (
-              <img
-                src={preview}
-                className="w-24 h-24 rounded-lg object-cover"
-              />
-            ) : (
-              <>
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/1829/1829580.png"
-                  className="w-10 opacity-70"
+            {/* Photo Upload */}
+            <label className="w-full border-2 border-dashed border-cyan-400/40 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+              {preview ? (
+                <img src={preview} className="w-24 h-24 rounded-lg object-cover" />
+              ) : (
+                <p className="text-cyan-300">Upload Photo</p>
+              )}
+              <input type="file" className="hidden" onChange={handlePhotoUpload} />
+            </label>
+
+            {/* Form */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+              {[
+                ["Full Name", fullName, setFullName],
+                ["Email", email, setEmail],
+                ["Course", course, setCourse],
+                ["Branch", branch, setBranch],
+                ["Year", year, setYear],
+                ["Q-ID", qid, setQid],
+              ].map(([ph, val, set], i) => (
+                <input
+                  key={i}
+                  placeholder={ph}
+                  value={val}
+                  onChange={(e) => set(e.target.value)}
+                  className="bg-transparent border border-cyan-500/30 rounded-xl px-4 py-3 text-white placeholder:text-gray-400 outline-none focus:border-cyan-400"
                 />
-                <p className="text-cyan-300 mt-2 text-sm font-medium">
-                  Upload Your Photo
-                </p>
-              </>
-            )}
-            <input
-              type="file"
-              id="photoInput"
-              className="hidden"
-              onChange={handlePhotoUpload}
-            />
-          </label>
+              ))}
+              <input
+                placeholder="Phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="bg-transparent border border-cyan-500/30 rounded-xl px-4 py-3 text-white placeholder:text-gray-400 outline-none focus:border-cyan-400 col-span-2"
+              />
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-            <input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white"
-              placeholder="Full Name"
-            />
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white"
-              placeholder="Email"
-            />
-
-            <select
-              value={course}
-              onChange={(e) => setCourse(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white"
+            <button
+              onClick={handleSubmit}
+              disabled={alreadyRegistered}
+              className="w-full mt-8 py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400"
             >
-              <option>Course</option>
-              <option>B.Tech</option>
-              <option>BCA</option>
-              <option>MCA</option>
-            </select>
-
-            <select
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white"
-            >
-              <option>Branch</option>
-              <option>CSE</option>
-              <option>ECE</option>
-            </select>
-
-            <select
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white"
-            >
-              <option>Year</option>
-              <option>First</option>
-              <option>Second</option>
-            </select>
-
-            <select
-              value={qid}
-              onChange={(e) => setQid(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white"
-            >
-              <option>Q-ID</option>
-              <option>101</option>
-              <option>102</option>
-            </select>
-
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="bg-[#0b2331] p-3 rounded-md text-white col-span-2"
-              placeholder="Phone Number"
-            />
+              {alreadyRegistered
+                ? "Already Registered"
+                : loading
+                ? "Submitting..."
+                : "Submit Registration"}
+            </button>
           </div>
-
-          <motion.button
-            onClick={handleSubmit}
-            className="w-full mt-8 py-3 bg-gradient-to-r from-cyan-300 to-blue-500 text-black rounded-lg"
-            disabled={alreadyRegistered}
-          >
-            {alreadyRegistered
-              ? "Already Registered"
-              : loading
-              ? "Submitting..."
-              : "Submit Registration"}
-          </motion.button>
         </motion.div>
       )}
     </motion.div>

@@ -1,15 +1,42 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import AOS from "aos";
-import "aos/dist/aos.css";
-
 import { MapPinCheck, UserCheck, FileCheck2, Workflow } from "lucide-react";
 
-export default function FeaturesSection() {
-  useEffect(() => {
-    AOS.init({ duration: 800, once: true });
-  }, []);
+const container = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.15,
+    },
+  },
+};
 
+const heading = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] },
+  },
+};
+
+const card = {
+  hidden: (i) => ({
+    opacity: 0,
+    x: i % 2 === 0 ? -80 : 80,
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 1, 0.5, 1],
+    },
+  },
+};
+
+export default function FeaturesSection() {
   const features = [
     {
       title: "Location Verification",
@@ -34,56 +61,57 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <div className="mt-28 text-center">
-
-      {/* NEON HEADING */}
-      <h2
-        data-aos="fade-up"
+    <motion.section
+      variants={container}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      className="mt-40 text-center overflow-hidden"
+    >
+      <motion.h2
+        variants={heading}
         className="
-          text-3xl font-extrabold tracking-wider mb-14 
+          text-3xl font-extrabold tracking-wider mb-16
           bg-gradient-to-r from-white via-[#22eaff] to-white
           bg-clip-text text-transparent
-          drop-shadow-[0_0_25px_#22eaff]
+          drop-shadow-[0_0_30px_#22eaff]
         "
       >
         SYSTEM FEATURES
-      </h2>
+      </motion.h2>
 
-      {/* GRID */}
-      <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto px-6">
+      <div className="grid md:grid-cols-2 gap-x-16 gap-y-12 max-w-7xl mx-auto px-10">
         {features.map((item, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, rotateX: -15, scale: 0.95 }}
-whileInView={{ opacity: 1, rotateX: 0, scale: 1 }}
-transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.1 }}
-whileHover={{ scale: 1.05, rotateX: 0 }}
-
+            custom={i}
+            variants={card}
             className="
-              border border-[#22eaff55] 
-              hover:border-[#22eaff] 
-              rounded-xl 
-              p-6 
-              flex items-center gap-4 
+              border border-[#22eaff55]
+              hover:border-[#22eaff]
+              rounded-2xl
+              p-8
+              flex items-center gap-6
               bg-[#0B0F1A]
-              transition-all duration-300 
-              hover:shadow-[0_0_25px_#22eaffaa]
+              transition-all duration-300
+              hover:shadow-[0_0_35px_#22eaffaa]
             "
-            data-aos="fade-up"
           >
-            {/* ICON */}
-            <div className="p-4 rounded-xl bg-[#0f172a] shadow-[0_0_15px_#22eaff44] hover:shadow-[0_0_25px_#22eaffaa] transition-all duration-300">
+            <div className="p-5 rounded-2xl bg-[#0f172a] shadow-[0_0_20px_#22eaff55]">
               {item.icon}
             </div>
 
-            {/* TEXT */}
             <div className="text-left">
-              <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-              <p className="text-gray-400 text-sm mt-1">{item.desc}</p>
+              <h3 className="text-xl font-semibold text-white">
+                {item.title}
+              </h3>
+              <p className="text-gray-400 text-sm mt-2">
+                {item.desc}
+              </p>
             </div>
           </motion.div>
         ))}
       </div>
-    </div>
+    </motion.section>
   );
 }
