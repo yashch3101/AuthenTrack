@@ -132,7 +132,7 @@ export default function EventRegistration() {
       const token = localStorage.getItem("studentToken");
 
       const formData = new FormData();
-      formData.append("file", selectedPhoto);
+      formData.append("photo", selectedPhoto);
       formData.append("fullName", fullName);
       formData.append("email", email);
       formData.append("course", course);
