@@ -44,6 +44,14 @@ def cosine_similarity(a, b):
     b = np.array(b)
     return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 
+@app.get("/")
+def health():
+    return {"status": "ML service running"}
+
+@app.on_event("startup")
+def preload_models():
+    DeepFace.build_model("VGG-Face")
+
 @app.post("/embedding/register")
 async def register_face(file: UploadFile = File(...)):
     try:

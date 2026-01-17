@@ -47,7 +47,7 @@ exports.registerForEvent = async (req, res) => {
     const mlRes = await axios.post(
       "https://authentrack-ml.onrender.com/embedding/register",
       mlForm,
-      { headers: mlForm.getHeaders() }
+      { headers: mlForm.getHeaders(), timeout: 120000, }
     );
 
     const embedding = mlRes.data.embedding || [];
